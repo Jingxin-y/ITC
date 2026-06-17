@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>本地大模型聊天</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f7f3;
+      --panel: #ffffff;
+      --ink: #1b1d1f;
+      --muted: #626a70;
+      --line: #dfe3df;
+      --accent: #1d6f5f;
+      --accent-strong: #145146;
+      --warm: #b15f32;
+      --user: #173d38;
+      --code: #151819;
+      --shadow: 0 18px 50px rgba(24, 31, 28, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Microsoft YaHei UI", "Segoe UI", system-ui, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button, select, textarea, input {
+      font: inherit;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 286px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding: 22px;
+      border-right: 1px solid var(--line);
+      background: #fbfbf8;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 42px;
+    }
+
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      color: white;
+      background: var(--accent);
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.2;
+      font-weight: 700;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      min-height: 22px;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 99px;
+      background: var(--warm);
+    }
+
+    .dot.ok { background: var(--accent); }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    select, input[type="range"] {
+      width: 100%;
+    }
+
+    select {
+      height: 38px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+    }
+
+    .range-row {
+      display: grid;
+      grid-template-columns: 1fr 42px;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .value {
+      color: var(--muted);
+      font-size: 13px;
+      text-align: right;
+    }
+
+    .side-actions {
+      margin-top: auto;
+      display: grid;
+      gap: 10px;
+    }
+
+    .ghost {
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .ghost:hover {
+      border-color: #b8c2ba;
+    }
+
+    .main {
+      display: grid;
+      grid-template-rows: minmax(0, 1fr) auto;
+      min-width: 0;
+      min-height: 100vh;
+    }
+
+    .messages {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      overflow-y: auto;
+      padding: 28px min(5vw, 64px);
+      scroll-behavior: smooth;
+    }
+
+    .message {
+      max-width: min(860px, 88%);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      border-color: var(--user);
+      background: var(--user);
+      color: white;
+    }
+
+    .message.assistant {
+      align-self: flex-start;
+    }
+
+    .message.error {
+      border-color: #d1937a;
+      background: #fff7f2;
+    }
+
+    .message-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 34px;
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .user .message-head {
+      color: rgba(255, 255, 255, 0.72);
+      border-bottom-color: rgba(255, 255, 255, 0.14);
+    }
+
+    .message-body {
+      padding: 13px 14px 15px;
+      line-height: 1.65;
+      overflow-wrap: anywhere;
+      white-space: normal;
+    }
+
+    .message-body p {
+      margin: 0 0 10px;
+    }
+
+    .message-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    pre {
+      margin: 10px 0;
+      padding: 13px;
+      overflow-x: auto;
+      border-radius: 8px;
+      background: var(--code);
+      color: #f4f7f5;
+      line-height: 1.5;
+      font-family: Consolas, "Cascadia Code", ui-monospace, monospace;
+      font-size: 13px;
+      white-space: pre;
+    }
+
+    code {
+      font-family: Consolas, "Cascadia Code", ui-monospace, monospace;
+      font-size: 0.95em;
+    }
+
+    .composer {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      padding: 16px min(5vw, 64px) 22px;
+      border-top: 1px solid var(--line);
+      background: rgba(251, 251, 248, 0.92);
+      backdrop-filter: blur(8px);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 48px;
+      max-height: 190px;
+      resize: vertical;
+      padding: 12px 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+
+    textarea:focus, select:focus {
+      outline: 2px solid rgba(29, 111, 95, 0.18);
+      border-color: var(--accent);
+    }
+
+    .send {
+      min-width: 88px;
+      height: 48px;
+      padding: 0 18px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .send:hover {
+      background: var(--accent-strong);
+    }
+
+    .send:disabled {
+      cursor: default;
+      opacity: 0.58;
+    }
+
+    @media (max-width: 760px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        padding: 14px;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .brand, .status, .side-actions {
+        grid-column: 1 / -1;
+      }
+
+      .messages {
+        padding: 18px 14px;
+      }
+
+      .message {
+        max-width: 100%;
+      }
+
+      .composer {
+        grid-template-columns: 1fr;
+        padding: 12px 14px 16px;
+      }
+
+      .send {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="mark">AI</div>
+        <h1>本地大模型聊天</h1>
+      </div>
+
+      <div class="status">
+        <span id="statusDot" class="dot"></span>
+        <span id="statusText">连接中</span>
+      </div>
+
+      <div class="field">
+        <label for="model">模型</label>
+        <select id="model">
+          <option value="qwen3:8b">qwen3:8b</option>
+          <option value="qwen2.5-coder:7b">qwen2.5-coder:7b</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="temperature">温度</label>
+        <div class="range-row">
+          <input id="temperature" type="range" min="0" max="1" step="0.05" value="0.35">
+          <span id="temperatureValue" class="value">0.35</span>
+        </div>
+      </div>
+
+      <div class="side-actions">
+        <button id="newChat" class="ghost" type="button">新聊天</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section id="messages" class="messages" aria-live="polite"></section>
+      <form id="composer" class="composer">
+        <textarea id="input" rows="2" autocomplete="off" placeholder="输入消息"></textarea>
+        <button id="send" class="send" type="submit">发送</button>
+      </form>
+    </main>
+  </div>
+
+  <script>
+    const OLLAMA_URL = "http://127.0.0.1:11434";
+    const modelSelect = document.getElementById("model");
+    const messagesEl = document.getElementById("messages");
+    const form = document.getElementById("composer");
+    const input = document.getElementById("input");
+    const sendButton = document.getElementById("send");
+    const statusDot = document.getElementById("statusDot");
+    const statusText = document.getElementById("statusText");
+    const temp = document.getElementById("temperature");
+    const tempValue = document.getElementById("temperatureValue");
+    const newChat = document.getElementById("newChat");
+
+    let messages = [];
+    let busy = false;
+    let aborter = null;
+
+    const systemPrompts = {
+      "qwen3:8b": "你是本机运行的中文助手。默认使用简体中文，回答清晰、直接、可执行。",
+      "qwen2.5-coder:7b": "你是本机运行的代码助手。优先给出可运行代码和必要的简洁说明。"
+    };
+
+    function escapeHtml(text) {
+      return text.replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    function formatContent(text) {
+      const pieces = text.split("```");
+      return pieces.map((piece, index) => {
+        if (index % 2 === 1) {
+          const lines = piece.replace(/^\n/, "").split("\n");
+          if (/^[\w#+.-]+$/.test(lines[0] || "")) lines.shift();
+          return `<pre><code>${escapeHtml(lines.join("\n").trimEnd())}</code></pre>`;
+        }
+        return piece
+          .split(/\n{2,}/)
+          .map(part => `<p>${escapeHtml(part).replace(/\n/g, "<br>")}</p>`)
+          .join("");
+      }).join("");
+    }
+
+    function roleName(role) {
+      return role === "user" ? "你" : role === "error" ? "错误" : "助手";
+    }
+
+    function render() {
+      messagesEl.innerHTML = messages.map(message => `
+        <article class="message ${message.role}">
+          <div class="message-head"><span>${roleName(message.role)}</span></div>
+          <div class="message-body">${formatContent(message.content || "")}</div>
+        </article>
+      `).join("");
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    function setStatus(ok, text) {
+      statusDot.classList.toggle("ok", ok);
+      statusText.textContent = text;
+    }
+
+    function setBusy(next) {
+      busy = next;
+      sendButton.disabled = next;
+      sendButton.textContent = next ? "生成中" : "发送";
+      input.disabled = next;
+      modelSelect.disabled = next;
+    }
+
+    function resetChat() {
+      messages = [{
+        role: "assistant",
+        content: modelSelect.value.includes("coder")
+          ? "代码模型已就绪。"
+          : "中文问答模型已就绪。"
+      }];
+      render();
+    }
+
+    async function loadModels() {
+      try {
+        const response = await fetch(`${OLLAMA_URL}/api/tags`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        const names = (data.models || []).map(item => item.name);
+        const preferred = ["qwen3:8b", "qwen2.5-coder:7b"];
+        const merged = [...new Set([...preferred, ...names])];
+        modelSelect.innerHTML = merged
+          .map(name => `<option value="${escapeHtml(name)}">${escapeHtml(name)}</option>`)
+          .join("");
+        setStatus(true, "Ollama 已连接");
+      } catch (error) {
+        setStatus(false, "Ollama 未连接");
+      }
+    }
+
+    async function sendMessage(content) {
+      const model = modelSelect.value;
+      messages.push({ role: "user", content });
+      const assistantIndex = messages.push({ role: "assistant", content: "" }) - 1;
+      render();
+      setBusy(true);
+      aborter = new AbortController();
+
+      const chatMessages = [
+        { role: "system", content: systemPrompts[model] || systemPrompts["qwen3:8b"] },
+        ...messages
+          .filter(message => message.role === "user" || message.role === "assistant")
+          .slice(1)
+          .map(message => ({ role: message.role, content: message.content }))
+      ];
+
+      try {
+        const response = await fetch(`${OLLAMA_URL}/api/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json; charset=utf-8" },
+          body: JSON.stringify({
+            model,
+            messages: chatMessages,
+            stream: true,
+            think: model.startsWith("qwen3") ? false : undefined,
+            options: {
+              temperature: Number(temp.value),
+              num_ctx: 4096
+            }
+          }),
+          signal: aborter.signal
+        });
+
+        if (!response.ok || !response.body) {
+          throw new Error(`Ollama 返回 ${response.status}`);
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let buffer = "";
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            const chunk = JSON.parse(line);
+            if (chunk.error) throw new Error(chunk.error);
+            const text = chunk.message?.content || chunk.response || "";
+            if (text) {
+              messages[assistantIndex].content += text;
+              render();
+            }
+          }
+        }
+
+        setStatus(true, "Ollama 已连接");
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          messages[assistantIndex] = {
+            role: "error",
+            content: error.message || "请求失败"
+          };
+          setStatus(false, "请求失败");
+          render();
+        }
+      } finally {
+        setBusy(false);
+        aborter = null;
+        input.focus();
+      }
+    }
+
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      if (busy) return;
+      const content = input.value.trim();
+      if (!content) return;
+      input.value = "";
+      sendMessage(content);
+    });
+
+    input.addEventListener("keydown", event => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        form.requestSubmit();
+      }
+    });
+
+    modelSelect.addEventListener("change", resetChat);
+    newChat.addEventListener("click", resetChat);
+    temp.addEventListener("input", () => {
+      tempValue.textContent = Number(temp.value).toFixed(2);
+    });
+
+    loadModels();
+    resetChat();
+    input.focus();
+  </script>
+</body>
+</html>

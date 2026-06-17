@@ -1,0 +1,16 @@
+.Rhistory
+.RData
+.Rproj.user/
+
+node_modules/
+
+outputs/
+
+*.aux
+*.log
+*.synctex
+*.synctex.gz
+*.out
+*.toc
+
+anchored_methods_intro.pdf

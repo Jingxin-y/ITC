@@ -1,0 +1,1031 @@
+## Standalone anchored-only helpers for the ITC RR simulation.
+##
+## Required before sourcing this file:
+##   getProbScalarRR.R, MyFunc.R, 1.1_MLE_Point.R, 1.2_MLE_Var.R,
+##   1.2_MLE_Var_joint.R, 1_CallMLE.R, CI_exact_fast.R,
+##   and RcppExports.R when exact() uses mat_vec_mul().
+
+safe_try <- function(expr, label) {
+  tryCatch(
+    expr,
+    error = function(e) {
+      warning(label, " failed: ", conditionMessage(e), call. = FALSE)
+      NULL
+    }
+  )
+}
+
+first_value <- function(x) {
+  if (length(x) == 0) NA_real_ else x[1]
+}
+
+optional_arg <- function(x) {
+  if (is.null(x) || length(x) == 0 || (length(x) == 1 && is.na(x))) {
+    return(NULL)
+  }
+  x
+}
+
+make_na_est <- function() {
+  list(point.est = NA_real_, se.est = NA_real_,
+       conf.lower = NA_real_, conf.upper = NA_real_, p.value = NA_real_)
+}
+
+make_na_exact <- function() {
+  list(low = NA_real_, up = NA_real_, p = NA_real_)
+}
+
+stat_value <- function(x, field) {
+  if (is.null(x) || is.null(x[[field]])) return(NA_real_)
+  first_value(x[[field]])
+}
+
+
+
+get.aggre <- function(data) {
+  x <- data$data$x
+  Z <- covariate_matrix(data$data)
+  Na0 <- data$count[1]
+  Na1 <- data$count[2]
+  m.AD <- nrow(Z)
+  q <- ncol(Z)
+
+  mean0 <- colMeans(Z[x == 0, , drop = FALSE])
+  mean1 <- colMeans(Z[x == 1, , drop = FALSE])
+  anchored.mean <- (Na0 * mean0 + Na1 * mean1) / (Na0 + Na1)
+  anchored.cov <- if (m.AD > 1) {
+    as.matrix(stats::cov(Z))
+  } else {
+    matrix(NA_real_, nrow = q, ncol = q,
+           dimnames = list(colnames(Z), colnames(Z)))
+  }
+  anchored.var <- diag(anchored.cov)
+
+  list(
+    anchored.mean.x = anchored.mean,
+    anchored.var.x = anchored.var,
+    anchored.cov.x = anchored.cov,
+    anchored.n = m.AD
+  )
+}
+
+get.weight <- function(data, target_mean) {
+  Z <- covariate_matrix(data$data)
+  q <- ncol(Z)
+
+  if (q == 0) {
+    return(list(weight = rep(1, nrow(data$data)), ga = numeric(0)))
+  }
+
+  target_mean <- as.numeric(target_mean)
+  if (length(target_mean) == 1 && q > 1) target_mean <- rep(target_mean, q)
+  if (length(target_mean) != q) {
+    stop("target_mean length must match the number of covariates.")
+  }
+
+  X <- sweep(Z, 2, target_mean, "-")
+  Q <- function(alpha, X) log_sum_exp(X %*% alpha)
+  Q.grad <- function(alpha, X) {
+    eta <- as.vector(X %*% alpha)
+    w <- exp(eta - max(eta))
+    as.vector(crossprod(X, w / sum(w)))
+  }
+
+  fit <- optim(par = rep(0, q), fn = Q, gr = Q.grad, X = X,
+               method = "BFGS", control = list(maxit = 1000))
+  if (fit$convergence != 0) {
+    warning("Weight optimization did not fully converge: ",
+            fit$message, call. = FALSE)
+  }
+
+  w <- normalize_exp_weights(X %*% fit$par)
+  list(weight = w, ga = fit$par)
+}
+
+get.estimate <- function(group, data, weight, gamma.ipd = NULL,
+                         target_mean = 0,
+                         target_var = NULL,
+                         m_AD = NULL,
+                         target_cov = NULL,
+                         target_mean_vcov = NULL) {
+  y <- data$data$y
+  x <- data$data$x
+  va <- as.matrix(data$data$v.1, ncol = 1)
+  vb <- cbind(data$data$v.1, covariate_matrix(data$data))
+
+  pa <- 1
+  pb <- ncol(vb)
+  if (is.null(gamma.ipd)) gamma.ipd <- rep(0, pb - 1)
+  if (length(gamma.ipd) == 1 && pb > 2) gamma.ipd <- rep(gamma.ipd, pb - 1)
+  if (length(target_mean) == 1 && pb > 2) target_mean <- rep(target_mean, pb - 1)
+
+  MLEst(
+    group, "RR", y, x, va, vb, weight, gamma.ipd,
+    max.step = min(pa * 20, 1000),
+    thres = 1e-6,
+    alpha.start = rep(0, pa),
+    beta.start = rep(0, pb),
+    pa = pa,
+    pb = pb,
+    target_mean = target_mean,
+    target_var = target_var,
+    m_AD = m_AD,
+    target_cov = target_cov,
+    target_mean_vcov = target_mean_vcov
+  )
+}
+
+log_link_start <- function(data, w = NULL, correction = 0.5,
+                           max_prob = 0.8) {
+  if (is.null(w)) w <- rep(1, nrow(data))
+  terms <- analysis_terms(data)
+  start <- rep(0, length(terms))
+  names(start) <- terms
+
+  x <- data$x
+  y <- data$y
+  idx1 <- x == 1
+  idx0 <- x == 0
+
+  p1 <- (sum(w[idx1] * y[idx1]) + correction) /
+    (sum(w[idx1]) + 2 * correction)
+  p0 <- (sum(w[idx0] * y[idx0]) + correction) /
+    (sum(w[idx0]) + 2 * correction)
+
+  p1 <- pmin(pmax(p1, 1e-8), max_prob)
+  p0 <- pmin(pmax(p0, 1e-8), max_prob)
+
+  start["x"] <- log(p1 / p0)
+  start["v.1"] <- log(p0)
+  start[is.na(start)] <- 0
+  start
+}
+
+add_glm_weights <- function(data, w = NULL) {
+  if (is.null(w)) w <- rep(1, nrow(data))
+  if (length(w) != nrow(data)) {
+    stop("Length of w must equal nrow(data).")
+  }
+
+  data$.glm_weight <- as.numeric(w)
+  data
+}
+
+fit_logbinomial <- function(data, w = NULL, label = "log-binomial") {
+  dat <- add_glm_weights(data, w)
+  w <- dat$.glm_weight
+
+  tryCatch(
+    glm(
+      weighted_glm_formula(dat),
+      family = binomial(link = "log"),
+      data = dat,
+      weights = .glm_weight,
+      start = log_link_start(data, w, max_prob = 0.8)
+    ),
+    error = function(e) {
+      warning(label, " failed: ", conditionMessage(e), call. = FALSE)
+      NULL
+    }
+  )
+}
+
+get_glm_stat <- function(fit, stat) {
+  if (is.null(fit)) return(NA_real_)
+
+  val <- tryCatch({
+    switch(
+      stat,
+      estimate = unname(stats::coef(fit)[1]),
+      se = unname(summary(fit)$coefficients[1, 2]),
+      low = unname(confint.default(fit, level = 0.95)[1, 1]),
+      up = unname(confint.default(fit, level = 0.95)[1, 2]),
+      p = unname(summary(fit)$coefficients[1, 4]),
+      NA_real_
+    )
+  }, error = function(e) NA_real_)
+
+  first_value(val)
+}
+
+fit_lp <- function(data, w = NULL) {
+  dat <- add_glm_weights(data, w)
+  w <- dat$.glm_weight
+
+  glm(
+    weighted_glm_formula(dat),
+    family = poisson(link = "log"),
+    data = dat,
+    weights = .glm_weight,
+    start = log_link_start(data, w, max_prob = 0.95)
+  )
+}
+
+fit_robust_lp <- function(data, w = NULL, hc_type = "HC0") {
+  if (is.null(w)) w <- rep(1, nrow(data))
+
+  fit <- fit_lp(data, w)
+
+  est <- unname(coef(fit)[1])
+  se <- sqrt(sandwich::vcovHC(fit, type = hc_type)[1, 1])
+
+  list(
+    est = est,
+    se = se,
+    low = est - 1.96 * se,
+    up = est + 1.96 * se,
+    p = 2 * (1 - pnorm(abs(est / se)))
+  )
+}
+
+fit_robust_lp_joint <- function(data, w = NULL, gamma = NULL,
+                                target_mean = NULL,
+                                target_var = NULL,
+                                m_AD = NULL,
+                                target_cov = NULL,
+                                target_mean_vcov = NULL,
+                                account_for_gamma = TRUE,
+                                account_for_target_mean = FALSE) {
+  ## Joint sandwich for weighted robust log-Poisson. The point estimate is the
+  ## same as fit_robust_lp(); the variance additionally propagates uncertainty
+  ## from gamma and, optionally, the AD target mean.
+  if (is.null(w)) w <- rep(1, nrow(data))
+  w <- as.numeric(w)
+  if (length(w) != nrow(data)) {
+    stop("Length of w must equal nrow(data).")
+  }
+  if (isTRUE(account_for_target_mean) && !isTRUE(account_for_gamma)) {
+    stop("To account for target_mean uncertainty, account_for_gamma should be TRUE.")
+  }
+
+  fit <- fit_lp(data, w)
+  beta.hat <- stats::coef(fit)
+  coef.idx <- if ("x" %in% names(beta.hat)) {
+    match("x", names(beta.hat))
+  } else {
+    1L
+  }
+  est <- unname(beta.hat[coef.idx])
+
+  X <- stats::model.matrix(fit)
+  n <- nrow(data)
+  if (nrow(X) != n) {
+    stop("RLP joint sandwich requires glm to keep all rows.")
+  }
+
+  y <- as.numeric(data$y)
+  mu <- as.numeric(stats::fitted(fit))
+  resid <- y - mu
+
+  psi.beta <- sweep(X, 1, w * resid, "*")
+  A.beta <- -crossprod(X, sweep(X, 1, w * mu, "*")) / n
+  A.beta.inv <- MASS::ginv(A.beta)
+
+  IF.beta <- -psi.beta %*% t(A.beta.inv)
+  var.mu <- matrix(0, nrow = ncol(X), ncol = ncol(X))
+
+  Z <- as.matrix(covariate_matrix(data))
+  q <- ncol(Z)
+
+  if (isTRUE(account_for_gamma) && q > 0) {
+    if (is.null(target_mean)) {
+      stop("target_mean must be supplied when account_for_gamma = TRUE.")
+    }
+
+    target_mean <- as.numeric(target_mean)
+    if (length(target_mean) == 1 && q > 1) target_mean <- rep(target_mean, q)
+    if (length(target_mean) != q) {
+      stop("target_mean length must match the number of covariates.")
+    }
+    if (!is.null(gamma)) {
+      gamma <- as.numeric(gamma)
+      if (length(gamma) == 1 && q > 1) gamma <- rep(gamma, q)
+    }
+    if (!is.null(gamma) && length(gamma) != q) {
+      stop("gamma length must match the number of covariates.")
+    }
+
+    D <- sweep(Z, 2, target_mean, "-")
+    Dbar.w <- colSums(w * D) / sum(w)
+    Hgamma <- sweep(D, 2, Dbar.w, "-")
+
+    A.gamma <- crossprod(D, w * Hgamma) / n
+    A.gamma.inv <- MASS::ginv(A.gamma)
+
+    A.beta.gamma <- crossprod(
+      X,
+      sweep(Hgamma, 1, w * resid, "*")
+    ) / n
+
+    psi.gamma <- sweep(D, 1, w, "*")
+    IF.gamma <- -psi.gamma %*% t(A.gamma.inv)
+
+    IF.beta <- -(
+      psi.beta + IF.gamma %*% t(A.beta.gamma)
+    ) %*% t(A.beta.inv)
+
+    if (isTRUE(account_for_target_mean)) {
+      V.mu <- make_target_mean_vcov(
+        target_var = target_var,
+        m_AD = m_AD,
+        target_cov = target_cov,
+        target_mean_vcov = target_mean_vcov
+      )
+
+      if (!all(dim(V.mu) == c(q, q))) {
+        stop("Dimension mismatch: Var(target_mean_hat) must be q by q.")
+      }
+
+      dgamma.dmu <- A.gamma.inv %*% (mean(w) * diag(q))
+      dbeta.dmu <- -A.beta.inv %*% A.beta.gamma %*% dgamma.dmu
+      var.mu <- dbeta.dmu %*% V.mu %*% t(dbeta.dmu)
+    }
+  }
+
+  vcov.ipd <- crossprod(IF.beta) / n^2
+  vcov.total <- vcov.ipd + var.mu
+  se <- sqrt(as.numeric(vcov.total[coef.idx, coef.idx]))
+
+  list(
+    est = est,
+    se = se,
+    low = est - 1.96 * se,
+    up = est + 1.96 * se,
+    p = if (is.finite(se) && se > 0) {
+      2 * (1 - pnorm(abs(est / se)))
+    } else {
+      NA_real_
+    },
+    var.ipd = as.numeric(vcov.ipd[coef.idx, coef.idx]),
+    var.mu = as.numeric(var.mu[coef.idx, coef.idx]),
+    vcov = vcov.total
+  )
+}
+
+get.weighted.RR <- function(data, w = NULL, correction = 0.5,
+                            strata = NULL, return_details = FALSE) {
+  ## Stratified Mantel-Haenszel estimator for the common log risk ratio.
+  ##
+  ## For stratum s, let
+  ##   a_s = sum w I(x=1,y=1), b_s = sum w I(x=1,y=0),
+  ##   c_s = sum w I(x=0,y=1), d_s = sum w I(x=0,y=0),
+  ##   n1_s = a_s+b_s, n0_s = c_s+d_s, N_s=n1_s+n0_s.
+  ## The MH estimator is
+  ##   RR_MH = sum_s a_s n0_s / N_s / sum_s c_s n1_s / N_s.
+  ## The SE below is a delta-method / influence-function SE treating w as fixed.
+
+  n <- nrow(data)
+  if (is.null(w)) w <- rep(1, n)
+  w <- as.numeric(w)
+  if (length(w) != n) stop("Length of w must equal nrow(data).")
+
+  x <- data$x
+  y <- data$y
+
+  if (is.null(strata)) {
+    Z <- as.matrix(covariate_matrix(data))
+    if (ncol(Z) == 0) {
+      strata <- factor(rep("all", n))
+    } else {
+      strata <- do.call(
+        interaction,
+        c(as.data.frame(Z), list(drop = TRUE, lex.order = TRUE, sep = ":"))
+      )
+    }
+  } else {
+    if (length(strata) != n) stop("Length of strata must equal nrow(data).")
+    strata <- factor(strata, drop = TRUE)
+  }
+
+  lev <- levels(strata)
+  raw <- do.call(rbind, lapply(lev, function(s) {
+    idx <- strata == s
+    a <- sum(w[idx] * (x[idx] == 1) * (y[idx] == 1))
+    b <- sum(w[idx] * (x[idx] == 1) * (y[idx] == 0))
+    c <- sum(w[idx] * (x[idx] == 0) * (y[idx] == 1))
+    d <- sum(w[idx] * (x[idx] == 0) * (y[idx] == 0))
+
+    data.frame(
+      stratum = s,
+      a = a,
+      b = b,
+      c = c,
+      d = d,
+      n1 = a + b,
+      n0 = c + d,
+      stringsAsFactors = FALSE
+    )
+  }))
+
+  ## A stratum contributes to MH only if both treatment arms are present.
+  keep <- raw$n1 > 0 & raw$n0 > 0
+  raw <- raw[keep, , drop = FALSE]
+
+  make_na <- function() {
+    out <- list(est = NA_real_, se = NA_real_,
+                low = NA_real_, up = NA_real_, p = NA_real_)
+    if (isTRUE(return_details)) {
+      out$phi <- rep(NA_real_, n)
+      out$grad <- NULL
+      out$part <- NULL
+    }
+    out
+  }
+
+  if (nrow(raw) == 0) return(make_na())
+
+  counts <- raw
+
+  mh_num_den <- function(cnt) {
+    N <- cnt$n1 + cnt$n0
+    c(
+      num = sum(cnt$a * cnt$n0 / N),
+      den = sum(cnt$c * cnt$n1 / N)
+    )
+  }
+
+  nd <- mh_num_den(counts)
+  used_correction <- FALSE
+
+  ## If the MH numerator or denominator is zero, apply a continuity correction
+  ## to the contributing strata. This keeps log(RR_MH) finite in rare-event runs.
+  if (!all(is.finite(nd)) || nd["num"] <= 0 || nd["den"] <= 0) {
+    counts[, c("a", "b", "c", "d")] <-
+      counts[, c("a", "b", "c", "d")] + correction
+    counts$n1 <- counts$a + counts$b
+    counts$n0 <- counts$c + counts$d
+    nd <- mh_num_den(counts)
+    used_correction <- TRUE
+  }
+
+  if (!all(is.finite(nd)) || nd["num"] <= 0 || nd["den"] <= 0) {
+    return(make_na())
+  }
+
+  cmh_grad <- function(cnt) {
+    N <- cnt$n1 + cnt$n0
+    A <- sum(cnt$a * cnt$n0 / N)
+    C <- sum(cnt$c * cnt$n1 / N)
+
+    list(
+      A = A,
+      C = C,
+      est = log(A / C),
+      ga = (cnt$n0 / N) / A,
+      gc = -(cnt$n1 / N) / C,
+      gn1 = -(cnt$a * cnt$n0 / N^2) / A -
+        (cnt$c * cnt$n0 / N^2) / C,
+      gn0 = (cnt$a * cnt$n1 / N^2) / A +
+        (cnt$c * cnt$n1 / N^2) / C
+    )
+  }
+
+  ## Use mean-scale quantities for the influence-function calculation.
+  counts.mean <- counts
+  counts.mean[, c("a", "b", "c", "d", "n1", "n0")] <-
+    counts.mean[, c("a", "b", "c", "d", "n1", "n0")] / n
+
+  raw.mean <- raw
+  raw.mean[, c("a", "b", "c", "d", "n1", "n0")] <-
+    raw.mean[, c("a", "b", "c", "d", "n1", "n0")] / n
+
+  grad <- cmh_grad(counts.mean)
+
+  kept.strata <- factor(strata, levels = counts$stratum)
+  gobs <- rep(0, n)
+
+  for (k in seq_along(counts$stratum)) {
+    idx <- !is.na(kept.strata) & kept.strata == counts$stratum[k]
+    if (!any(idx)) next
+
+    gobs[idx] <- grad$ga[k]  * (x[idx] == 1) * (y[idx] == 1) +
+      grad$gc[k]  * (x[idx] == 0) * (y[idx] == 1) +
+      grad$gn1[k] * (x[idx] == 1) +
+      grad$gn0[k] * (x[idx] == 0)
+  }
+
+  center <- sum(
+    grad$ga  * raw.mean$a +
+      grad$gc  * raw.mean$c +
+      grad$gn1 * raw.mean$n1 +
+      grad$gn0 * raw.mean$n0
+  )
+
+  phi <- w * gobs - center
+  se <- sqrt(sum(phi^2) / n^2)
+  est <- grad$est
+
+  out <- list(
+    est = est,
+    se = se,
+    low = est - 1.96 * se,
+    up = est + 1.96 * se,
+    p = if (is.finite(se) && se > 0) {
+      2 * (1 - pnorm(abs(est / se)))
+    } else {
+      NA_real_
+    }
+  )
+
+  if (isTRUE(return_details)) {
+    out$phi <- phi
+    out$gobs <- gobs
+    out$grad <- grad
+    out$part <- list(
+      raw = raw,
+      counts = counts,
+      strata = kept.strata,
+      used_correction = used_correction
+    )
+  }
+
+  out
+}
+
+get.weighted.RR.sandwich <- function(data, w, gamma = NULL,
+                                     target_mean = NULL,
+                                     target_var = NULL,
+                                     m_AD = NULL,
+                                     target_cov = NULL,
+                                     target_mean_vcov = NULL,
+                                     account_for_gamma = TRUE,
+                                     account_for_target_mean = FALSE,
+                                     correction = 0.5,
+                                     strata = NULL) {
+  ## Stratified Mantel-Haenszel common log RR with sandwich SE.
+  ## The fixed-weight component is the same CMH influence-function SE used in
+  ## get.weighted.RR(). If account_for_gamma = TRUE, the SE also accounts for
+  ## estimation of the exponential-tilting parameter gamma. If
+  ## account_for_target_mean = TRUE, it additionally accounts for uncertainty
+  ## in the AD target mean used to estimate gamma.
+
+  fixed <- get.weighted.RR(
+    data = data,
+    w = w,
+    correction = correction,
+    strata = strata,
+    return_details = TRUE
+  )
+
+  base_out <- list(
+    est = fixed$est,
+    se = fixed$se,
+    low = fixed$low,
+    up = fixed$up,
+    p = fixed$p
+  )
+
+  if (!is.finite(fixed$est) || is.null(fixed$phi) || is.null(fixed$part)) {
+    return(base_out)
+  }
+
+  use_gamma <- isTRUE(account_for_gamma)
+  use_mu <- isTRUE(account_for_target_mean)
+
+  if (use_mu && !use_gamma) {
+    stop("To account for target_mean uncertainty, account_for_gamma should be TRUE.")
+  }
+
+  if (!use_gamma) {
+    return(base_out)
+  }
+
+  n <- nrow(data)
+  w <- as.numeric(w)
+
+  Z <- covariate_matrix(data)
+  Z <- as.matrix(Z)
+  q <- ncol(Z)
+
+  if (q == 0) {
+    return(base_out)
+  }
+
+  if (is.null(target_mean)) {
+    stop("target_mean must be supplied when account_for_gamma = TRUE.")
+  }
+
+  target_mean <- as.numeric(target_mean)
+  if (length(target_mean) == 1 && q > 1) target_mean <- rep(target_mean, q)
+  if (length(target_mean) != q) {
+    stop("target_mean length must match the number of covariates.")
+  }
+
+  ## Exponential-tilting calibration equation:
+  ##   mean{ w_gamma(Z_i) (Z_i - target_mean) } = 0.
+  ## Because weights are normalized, d w_i / d gamma = w_i H_i, where
+  ##   H_i = D_i - weighted.mean(D).
+  D <- sweep(Z, 2, target_mean, "-")
+  Dbar.w <- colSums(w * D) / sum(w)
+  Hgamma <- sweep(D, 2, Dbar.w, "-")
+
+  A.gamma <- crossprod(D, w * Hgamma) / n
+  A.gamma.inv <- MASS::ginv(A.gamma)
+
+  ## Derivative of the CMH log RR wrt gamma, holding the empirical
+  ## distribution fixed.
+  G.gamma <- colSums((w * fixed$gobs) * Hgamma) / n
+
+  ## IF for gamma from the IPD calibration equation.
+  psi.gamma <- w * D
+  IF.gamma <- -psi.gamma %*% t(A.gamma.inv)
+
+  phi.ipd <- fixed$phi + as.vector(IF.gamma %*% G.gamma)
+  var.ipd <- sum(phi.ipd^2) / n^2
+
+  var.mu <- 0
+
+  if (use_mu) {
+    V.mu <- make_target_mean_vcov(
+      target_var = target_var,
+      m_AD = m_AD,
+      target_cov = target_cov,
+      target_mean_vcov = target_mean_vcov
+    )
+
+    if (!all(dim(V.mu) == c(q, q))) {
+      stop("Dimension mismatch: Var(target_mean_hat) must be q by q.")
+    }
+
+    ## Since normalized weights are invariant to a common shift in
+    ## Z - target_mean, target_mean affects the estimator through gamma.
+    ## From U_gamma(gamma, mu)=0,
+    ##   d gamma / d mu = A.gamma^{-1} mean(w) I.
+    dgamma.dmu <- A.gamma.inv %*% (mean(w) * diag(q))
+    G.mu <- as.vector(t(G.gamma) %*% dgamma.dmu)
+    var.mu <- as.numeric(t(G.mu) %*% V.mu %*% G.mu)
+  }
+
+  var.total <- var.ipd + var.mu
+  se <- sqrt(var.total)
+  est <- fixed$est
+
+  list(
+    est = est,
+    se = se,
+    low = est - 1.96 * se,
+    up = est + 1.96 * se,
+    p = if (is.finite(se) && se > 0) {
+      2 * (1 - pnorm(abs(est / se)))
+    } else {
+      NA_real_
+    },
+    var.ipd = var.ipd,
+    var.mu = var.mu
+  )
+}
+
+bayes_est_RR_weighted <- function(data, w = NULL,
+                                  a1 = 0.5, b1 = 0.5,
+                                  a0 = 0.5, b0 = 0.5,
+                                  M = 1e5, conf = 0.95) {
+  if (is.null(w)) w <- rep(1, nrow(data))
+
+  x <- data$x
+  y <- data$y
+  S1 <- sum(w[x == 1] * y[x == 1])
+  F1 <- sum(w[x == 1] * (1 - y[x == 1]))
+  S0 <- sum(w[x == 0] * y[x == 0])
+  F0 <- sum(w[x == 0] * (1 - y[x == 0]))
+
+  p1 <- rbeta(M, a1 + S1, b1 + F1)
+  p0 <- rbeta(M, a0 + S0, b0 + F0)
+  logrr <- log(p1 / p0)
+  ci <- quantile(logrr, c((1 - conf) / 2, 1 - (1 - conf) / 2))
+
+  list(
+    point.est = mean(logrr),
+    se.est = sd(logrr),
+    conf.lower = unname(ci[1]),
+    conf.upper = unname(ci[2]),
+    p.value = NA_real_
+  )
+}
+
+get.brm.ad <- function(est, data, weight) {
+  if (is.null(est)) return(make_na_est())
+
+  out <- est
+  x <- data$x
+  y <- data$y
+  P1.w <- sum(weight[x == 1] * y[x == 1]) / sum(weight[x == 1])
+  P0.w <- sum(weight[x == 0] * y[x == 0]) / sum(weight[x == 0])
+
+  if (P0.w == 0 || P0.w == 1 || P1.w == 0 || P1.w == 1) {
+    est.bayes <- bayes_est_RR_weighted(data, weight)
+    out$point.est[1] <- est.bayes$point.est
+    out$se.est[1] <- est.bayes$se.est
+    out$conf.lower[1] <- est.bayes$conf.lower
+    out$conf.upper[1] <- est.bayes$conf.upper
+    out$p.value[1] <- NA_real_
+  }
+
+  out
+}
+
+gcomp_ml_rr_itc <- function(data.IPD, data.AD.or,
+                            formula = NULL,
+                            n_star = 500,
+                            n_boot = 300,
+                            correction = 0.5) {
+  z.cols <- covariate_names(data.IPD$data)
+  dat_ac <- data.IPD$data[, c("y", "x", z.cols), drop = FALSE]
+  N.C <- data.AD.or$count[1]
+  N.B <- data.AD.or$count[2]
+  y.C.sum <- data.AD.or$count[3]
+  y.B.sum <- data.AD.or$count[4]
+
+  if (is.null(formula)) {
+    main_terms <- paste(c("x", z.cols), collapse = " + ")
+    interaction_terms <- paste(paste0("x:", z.cols), collapse = " + ")
+    formula <- as.formula(paste("y ~", main_terms, "+", interaction_terms))
+  }
+
+  ad_z <- data.AD.or$data[, z.cols, drop = FALSE]
+  x_star <- ad_z[sample.int(nrow(ad_z), n_star, replace = TRUE), , drop = FALSE]
+
+  one_boot <- function(indices) {
+    dat_b <- dat_ac[indices, , drop = FALSE]
+    fit <- glm(formula, family = binomial(link = "logit"), data = dat_b)
+
+    new_A <- x_star
+    new_C <- x_star
+    new_A$x <- 1
+    new_C$x <- 0
+
+    log(mean(predict(fit, newdata = new_A, type = "response")) /
+          mean(predict(fit, newdata = new_C, type = "response")))
+  }
+
+  n <- nrow(dat_ac)
+  boot_est <- replicate(n_boot, one_boot(sample.int(n, n, replace = TRUE)))
+
+  pB <- y.B.sum / N.B
+  pC <- y.C.sum / N.C
+  if (any(c(y.B.sum, N.B - y.B.sum, y.C.sum, N.C - y.C.sum) == 0)) {
+    y.B.sum <- y.B.sum + correction
+    N.B <- N.B + 2 * correction
+    y.C.sum <- y.C.sum + correction
+    N.C <- N.C + 2 * correction
+    pB <- y.B.sum / N.B
+    pC <- y.C.sum / N.C
+  }
+
+  var.BC <- (1 / y.B.sum - 1 / N.B) + (1 / y.C.sum - 1 / N.C)
+  est.AC <- mean(boot_est)
+  var.AC <- var(boot_est)
+  se.AC <- sqrt(var.AC)
+  est.BC <- log(pB / pC)
+  est.AB <- est.AC - est.BC
+  se.AB <- sqrt(var.AC + var.BC)
+
+  list(
+    logRR.AC = est.AC,
+    se.AC = se.AC,
+    lower.AC = est.AC - 1.96 * se.AC,
+    upper.AC = est.AC + 1.96 * se.AC,
+    pvalAC = 2 * (1 - pnorm(abs(est.AC / se.AC))),
+    logRR.BC = est.BC,
+    logRR.AB = est.AB,
+    se.AB = se.AB,
+    lower.AB = est.AB - 1.96 * se.AB,
+    upper.AB = est.AB + 1.96 * se.AB
+  )
+}
+
+get.gcomp.ML <- function(data.IPD, data.AD.or,
+                         n_star = 500,
+                         n_boot = 300) {
+  fit <- gcomp_ml_rr_itc(
+    data.IPD = data.IPD,
+    data.AD.or = data.AD.or,
+    n_star = n_star,
+    n_boot = n_boot
+  )
+
+  list(est = fit$logRR.AC, se = fit$se.AC,
+       lower = fit$lower.AC, upper = fit$upper.AC, pval = fit$pvalAC)
+}
+
+exact_safe <- function(param, y, x, va, vb, weight,
+                            point.est, se.est, pa, pb, label,
+                            max.step = 40,
+                            thres = 1e-3,
+                            thres.dicho = 1e-3) {
+  if (any(!is.finite(point.est[seq_len(pa + pb)]))) {
+    warning(label, " skipped because point estimates are non-finite.",
+            call. = FALSE)
+    return(make_na_exact())
+  }
+
+  if (any(!is.finite(se.est[seq_len(pa)])) ||
+      any(se.est[seq_len(pa)] <= 0)) {
+    warning(label, " received non-finite alpha SE; using default exact-search width.",
+            call. = FALSE)
+    se.est[seq_len(pa)] <- 1
+  }
+
+  out <- safe_try(
+    exact(param, y, x, va, vb, weight,
+          max.step = max.step, thres = thres, thres.dicho = thres.dicho,
+          pars = point.est, se = se.est, pa = pa, pb = pb),
+    label
+  )
+
+  if (is.null(out)) make_na_exact() else out
+}
+
+get.compare.anchored <- function(data.ipd, data.ad, data.ad.or,
+                                 param = "RR",
+                                 run_exact = TRUE,
+                                 include_gcomp = TRUE,
+                                 n_star = 500,
+                                 n_boot = 300) {
+  y <- data.ipd$data$y
+  x <- data.ipd$data$x
+  va <- as.matrix(data.ipd$data$v.1, ncol = 1)
+  vb <- cbind(data.ipd$data$v.1, covariate_matrix(data.ipd$data))
+  pa <- ncol(va)
+  pb <- ncol(vb)
+
+  model.anweight <- get.weight(data.ipd, data.ad$anchored.mean.x)
+  anchored.weight <- model.anweight$weight
+  anchored.gamma <- model.anweight$ga
+
+  brm.est <- safe_try(get.estimate("AD", data.ipd, rep(1, length(y)), 0, 0),
+                      "brm")
+  if (is.null(brm.est)) brm.est <- make_na_est()
+
+  anchored.est <- safe_try(
+    get.estimate("IPD", data.ipd, anchored.weight, anchored.gamma,
+                 target_mean = data.ad$anchored.mean.x,
+                 target_var = data.ad$anchored.var.x,
+                 m_AD = data.ad$anchored.n,
+                 target_cov = data.ad$anchored.cov.x),
+    "brm_an"
+  )
+  if (is.null(anchored.est)) anchored.est <- make_na_est()
+
+  LB.anchored <- safe_try(fit_logbinomial(data.ipd$data, anchored.weight,
+                                          "LB.anchored"), "LB_an")
+  LP.anchored <- safe_try(fit_lp(data.ipd$data, anchored.weight), "LP_an")
+  RLP.anchored <- safe_try(
+    fit_robust_lp_joint(data.ipd$data, anchored.weight,
+                        gamma = anchored.gamma,
+                        target_mean = data.ad$anchored.mean.x,
+                        target_var = data.ad$anchored.var.x,
+                        m_AD = data.ad$anchored.n,
+                        target_cov = data.ad$anchored.cov.x,
+                        account_for_target_mean = TRUE),
+    "RLP_an"
+  )
+  CMH.anchored <- safe_try(get.weighted.RR(data.ipd$data, anchored.weight),
+                           "CMH_an")
+  CMH.sandwich.anchored <- safe_try(
+    get.weighted.RR.sandwich(data.ipd$data, anchored.weight,
+                             gamma = anchored.gamma,
+                             target_mean = data.ad$anchored.mean.x,
+                             target_var = data.ad$anchored.var.x,
+                             m_AD = data.ad$anchored.n,
+                             target_cov = data.ad$anchored.cov.x,
+                             account_for_target_mean = TRUE),
+    "CMH_sandwich_an"
+  )
+
+  bayes.anchored <- safe_try(get.brm.ad(anchored.est, data.ipd$data,
+                                        anchored.weight), "brmad_an")
+  if (is.null(bayes.anchored)) bayes.anchored <- make_na_est()
+
+  est.gcomp <- if (isTRUE(include_gcomp)) {
+    safe_try(get.gcomp.ML(data.ipd, data.ad.or, n_star, n_boot), "GC")
+  } else {
+    NULL
+  }
+
+  est.exact.anchored <- make_na_exact()
+  est.exact.ad.anchored <- make_na_exact()
+  if (isTRUE(run_exact)) {
+    est.exact.anchored <- exact_safe(
+      param, y, x, va, vb, anchored.weight,
+      anchored.est$point.est, anchored.est$se.est, pa, pb, "exact_an"
+    )
+    est.exact.ad.anchored <- exact_safe(
+      param, y, x, va, vb, anchored.weight,
+      bayes.anchored$point.est, bayes.anchored$se.est, pa, pb, "ad_exact_an"
+    )
+  }
+
+  result.comp <- rbind(
+    point.est = c(
+      stat_value(brm.est, "point.est"),
+      stat_value(anchored.est, "point.est"),
+      get_glm_stat(LB.anchored, "estimate"),
+      get_glm_stat(LP.anchored, "estimate"),
+      stat_value(RLP.anchored, "est"),
+      stat_value(CMH.anchored, "est"),
+      stat_value(CMH.sandwich.anchored, "est"),
+      stat_value(bayes.anchored, "point.est"),
+      stat_value(est.gcomp, "est"),
+      stat_value(anchored.est, "point.est"),
+      stat_value(bayes.anchored, "point.est")
+    ),
+    se.est = c(
+      stat_value(brm.est, "se.est"),
+      stat_value(anchored.est, "se.est"),
+      get_glm_stat(LB.anchored, "se"),
+      get_glm_stat(LP.anchored, "se"),
+      stat_value(RLP.anchored, "se"),
+      stat_value(CMH.anchored, "se"),
+      stat_value(CMH.sandwich.anchored, "se"),
+      stat_value(bayes.anchored, "se.est"),
+      stat_value(est.gcomp, "se"),
+      stat_value(anchored.est, "se.est"),
+      stat_value(bayes.anchored, "se.est")
+    ),
+    con.low = c(
+      stat_value(brm.est, "conf.lower"),
+      stat_value(anchored.est, "conf.lower"),
+      get_glm_stat(LB.anchored, "low"),
+      get_glm_stat(LP.anchored, "low"),
+      stat_value(RLP.anchored, "low"),
+      stat_value(CMH.anchored, "low"),
+      stat_value(CMH.sandwich.anchored, "low"),
+      stat_value(bayes.anchored, "conf.lower"),
+      stat_value(est.gcomp, "lower"),
+      stat_value(est.exact.anchored, "low"),
+      stat_value(est.exact.ad.anchored, "low")
+    ),
+    con.up = c(
+      stat_value(brm.est, "conf.upper"),
+      stat_value(anchored.est, "conf.upper"),
+      get_glm_stat(LB.anchored, "up"),
+      get_glm_stat(LP.anchored, "up"),
+      stat_value(RLP.anchored, "up"),
+      stat_value(CMH.anchored, "up"),
+      stat_value(CMH.sandwich.anchored, "up"),
+      stat_value(bayes.anchored, "conf.upper"),
+      stat_value(est.gcomp, "upper"),
+      stat_value(est.exact.anchored, "up"),
+      stat_value(est.exact.ad.anchored, "up")
+    ),
+    p.value = c(
+      stat_value(brm.est, "p.value"),
+      stat_value(anchored.est, "p.value"),
+      get_glm_stat(LB.anchored, "p"),
+      get_glm_stat(LP.anchored, "p"),
+      stat_value(RLP.anchored, "p"),
+      stat_value(CMH.anchored, "p"),
+      stat_value(CMH.sandwich.anchored, "p"),
+      stat_value(bayes.anchored, "p.value"),
+      stat_value(est.gcomp, "pval"),
+      stat_value(est.exact.anchored, "p"),
+      stat_value(est.exact.ad.anchored, "p")
+    )
+  )
+
+  colnames(result.comp) <- c(
+    "brm", "brm_an", "LB_an", "LP_an", "RLP_an",
+    "CMH_an", "CMH_sandwich_an", "brmad_an", "GC", "exact_an", "ad_exact_an"
+  )
+
+  result.comp
+}
+
+run.anchored <- function(param, n, event, hypothesis,
+                         run_exact = TRUE,
+                         include_gcomp = TRUE,
+                         n_star = 500,
+                         n_boot = 300,
+                         ess_ratio = NULL,
+                         ess_side = "lower",
+                         target_mean = NULL,
+                         n_cov = 3,
+                         ipd_prob = 0.5,
+                         ad_prob = NULL,
+                         direction = NULL) {
+  data.IPD <- data.generation(
+    param, "IPD", n, event, hypothesis,
+    n_cov = n_cov,
+    ipd_prob = ipd_prob
+  )
+  data.AD.or <- data.generation(
+    param, "AD", n, event, hypothesis,
+    ess_ratio = ess_ratio,
+    ess_side = ess_side,
+    target_mean = target_mean,
+    n_cov = n_cov,
+    ipd_prob = ipd_prob,
+    ad_prob = ad_prob,
+    direction = direction
+  )
+  data.AD <- get.aggre(data.AD.or)
+
+  get.compare.anchored(
+    data.IPD, data.AD, data.AD.or,
+    param = param,
+    run_exact = run_exact,
+    include_gcomp = include_gcomp,
+    n_star = n_star,
+    n_boot = n_boot
+  )
+}

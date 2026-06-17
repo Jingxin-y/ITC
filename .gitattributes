@@ -1,0 +1,10 @@
+*.gitattributes text eol=lf
+*.R text eol=lf
+*.mjs text eol=lf
+*.sh text eol=lf
+*.tex text eol=lf
+*.txt text eol=lf
+*.html text eol=lf
+*.ps1 text eol=lf
+*.vbs text eol=crlf
+*.bin binary
