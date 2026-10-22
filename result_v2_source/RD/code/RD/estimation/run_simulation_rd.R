@@ -1,0 +1,18 @@
+args <- commandArgs(trailingOnly = TRUE)
+file_arg <- grep("^--file=", commandArgs(), value = TRUE)
+rd_dir <- dirname(dirname(normalizePath(sub("^--file=", "", file_arg[1]), winslash = "/")))
+if (.Platform$OS.type == "windows") Sys.setlocale("LC_CTYPE", "English_United States.utf8")
+source(file.path(rd_dir, "load_anchored_rd.R"), encoding = "UTF-8")
+code_dir <- if (length(args) >= 3) args[3] else dirname(rd_dir)
+source_anchored_rd(code_dir, rd_dir)
+config <- if (length(args)) args[1] else file.path(rd_dir, "simulation_config_rd.R")
+out <- if (length(args) >= 2) args[2] else file.path(rd_dir, "results", "local")
+cfg <- new.env(parent = globalenv()); sys.source(config, cfg)
+if (!exists("simulation_args", cfg, inherits = FALSE)) stop("Config must define simulation_args.")
+simulation_args <- cfg$simulation_args
+if (any(names(simulation_args) %in% c("checkpoint_file", "code_dir", "rd_dir")))
+  stop("Config must not override checkpoint/code directories.")
+result <- do.call(simulate_anchored_rd, c(simulation_args, list(
+  checkpoint_file = file.path(out, "anchored_rd_checkpoint.rds"), code_dir = code_dir, rd_dir = rd_dir)))
+rd_write_simulation(result, out)
+cat("RD simulation saved to", normalizePath(out, winslash = "/"), "\n")

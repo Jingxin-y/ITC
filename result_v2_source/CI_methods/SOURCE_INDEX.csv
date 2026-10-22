@@ -1,0 +1,7 @@
+﻿review_file,canonical_file,sha256
+CI_methods/RR/estimation/helpers/CI_marginal_target.R,RR/code/estimation/helpers/CI_marginal_target.R,c4d2a5f581b665b0148cdf7af1673c8c7291b5854967f9bef1770c5d8641f544
+CI_methods/RR/estimation/helpers/marginal_comparison.R,RR/code/estimation/helpers/marginal_comparison.R,463717e183df506cc6c10ea2f3b5f42f68a483a8bc458b3b805fa91523cbaf5e
+CI_methods/RD/RD/estimation/CI_marginal_rd_target.R,RD/code/RD/estimation/CI_marginal_rd_target.R,bd3b211aaadc39fc1e64e8866878264acecad0a9e7eb37a03651620c62aee5c2
+CI_methods/RD/RD/estimation/rd_methods.R,RD/code/RD/estimation/rd_methods.R,569cc7c499e0aeacddc42bf90816723438ff3d55b5c82d53f6dfc633e2587dbd
+CI_methods/RD/RD/estimation/rd_comparison.R,RD/code/RD/estimation/rd_comparison.R,903801393c1b5a7fcc81f9b7d9211dc926e8d66fac7056e4918a249e3690166f
+CI_methods/RD/RD/estimation/rd_solver_adapter.R,RD/code/RD/estimation/rd_solver_adapter.R,6623d72201c5154102891d5d90378e504a85dd3bce8d6ada947bb0c682a46bf9

@@ -1,0 +1,123 @@
+RR effect v2 的完整 cluster 运行包（2026-10-15）
+
+本包包含数据生成、全部现有估计方法、marginal BC 区间、检查点、汇总和绘图代码。
+来源和强度由新提交脚本传入，不需要在 cluster 上手工修改 R 函数。
+新方案：BC 平均风险固定；diffuse 为 a=.5，em_driven 为 a=1，nonem_driven 为 a=0；
+low 的 AC/BC 系数为 .15/.075，high 为 .60/.30；统一基线形状为 .59/1.08。
+BC 目标风险 C/A/B：common=.418596/.514669/.60；rare=.048831/.10/.15。
+
+1. 上传与解压
+
+将 RR_effect_v2_20261015.tar.gz 上传到 cluster 的 HOME，然后运行：
+
+cd "$HOME"
+tar -xzf RR_effect_v2_20261015.tar.gz
+cd "$HOME/RR_effect_v2_20261015"
+sha256sum -c SHA256SUMS
+export MAIC_CODE_DIR="$PWD"
+
+校验清单对应本包实际文件，解压后不要先删文件再校验。
+不需要覆盖原 MAIC_webster_20261001_210218 目录。
+
+2. 先提交小测试
+
+bash -n submit_ess_em_smoke.sh
+bash submit_ess_em_smoke.sh
+
+默认申请 2 核、8GB、1 小时；账户默认沿用 def-liteep，R 模块默认 r/4.3.1。
+可用 MAIC_ACCOUNT、MAIC_R_MODULE 覆盖账户和 R 模块。
+可用 MAIC_SMOKE_CORES、MAIC_SMOKE_MEM_GB、MAIC_SMOKE_WALLTIME 调整小测试资源。
+测试不使用 MAIC_NSIM=500，固定为六个情形各一次、每项试验 200 人、seed=1。
+六个情形覆盖 common/rare、三种来源、low/high、all/em/nonem，以及 ESS=.25。
+它实际调用 BRM 和 BRM-FC 的 BC bootstrap/profile 计算，未替换区间函数。
+测试使用减少的 bootstrap 次数，不能用于论文覆盖率评估。
+测试还缩小端点搜索范围、使用较粗的端点精度并关闭 p 值计算；边界截断区间属于预期结果。
+正式 full 模式不采用这些测试调整。
+
+提交后会打印 Job ID、结果目录以及读取通过标志和日志的命令。
+测试结果位于：$SCRATCH/MAIC_ess_em_v2/smoke_时间戳_PID/
+完成后读取 SMOKE_PASS.txt；不存在此文件时查看日志及 smoke_failures.csv。
+smoke_exact_checks.csv 保存每种 BRM 区间的状态、端点、profile 次数和 bootstrap 数据数。
+通过条件是六个流程完整、权重和配置正确、真实 BC 计算执行，且 common/rare 都有返回区间。
+通过不代表每个方法、每份稀有事件样本都能得到 CI，具体返回状态必须单独报告。
+各情形的 RDS、combined_results.csv、status_counts.csv 在 scenarios/ 各自目录。
+
+3. 单个正式情形
+
+export MAIC_CODE_DIR="$HOME/RR_effect_v2_20261015"
+export MAIC_NSIM=500
+export MAIC_FIRST_SEED=1
+export MAIC_CORES_PER_JOB=96
+export MAIC_MEM_GB=20
+export MAIC_WALLTIME=3:00:00
+export MAIC_CI_MODE=full
+export MAIC_MODEL_WEIGHTING=unit
+export MAIC_EST_MODE=scores
+export MAIC_EST_EM=z1,z2,z3
+export MAIC_EST_NON_EM=z4,z5,z6
+export MAIC_ESS_SOURCE=em_driven
+export MAIC_EM_LEVEL=high
+export MAIC_WEIGHT_MODE=all
+
+MAIC_EVENT=common bash "$MAIC_CODE_DIR/submit_ess_em_grid.sh" 200 0.15
+MAIC_EVENT=rare   bash "$MAIC_CODE_DIR/submit_ess_em_grid.sh" 200 0.15
+
+MAIC_ESS_SOURCE：diffuse / em_driven / nonem_driven。
+MAIC_EM_LEVEL：low / high。
+MAIC_WEIGHT_MODE：all / em / nonem。
+样本量：100 / 200 / 500；为每项试验总人数，两臂各 n/2。
+ESS：0.15 / 0.25 / 0.5 / 0.8；为 Full 的总体理论相对 ESS。
+模型拟合全 1；目标人群风险平均和 marginal CI 约束使用相应 MAIC 权重。
+Full/E/P 比较时保持同一 source、level、event、n、ESS 和 seed；生成数据完全相同。
+P-only、E-only 的实际和理论 ESS 不需要等于名义 Full ESS。
+
+正式 full 模式沿用 coarse=100、confirm=200、refine=200、p.value=500 的 bootstrap 设置。
+单次 CI 时间上限仍为 10800 秒。Slurm 的 3 小时是整个 job 的资源限额，不保证所有情形都能在 3 小时完成。
+smoke 模式仅用于检查流程，不能混入 full 模式的正式分析。
+
+4. 用户图中的完整 144 个分析情形
+
+bash "$MAIC_CODE_DIR/submit_ess_em_matrix.sh" dry-run
+
+检查后执行：
+bash "$MAIC_CODE_DIR/submit_ess_em_matrix.sh" submit
+
+该脚本对应 144 个分析单元、64 个不同 DGP/样本量情形；
+diffuse Full 为 n={100,200,500}、ESS={.15,.25,.5,.8}、common/rare、low/high；
+diffuse E/P 为 n={100,500}、ESS={.15,.5,.8}、common/rare、low/high；
+纯 E/P 来源为 n={100,500}、ESS={.15,.8}、common/rare、high、三种校准。
+每个分析单元一个 Slurm job，资源/NSIM/CI 模式沿用上面的环境变量。
+矩阵中的拟合权重固定为 unit，评分集合固定为真实 z1:z3、z4:z6。
+
+5. 结果、检查点与绘图
+
+正式结果位于：
+$SCRATCH/MAIC_ess_em_v2/事件_来源_强度_weight_校准_est_评分_fit_拟合权重_n样本量_ess比例_CI模式_时间戳_PID/
+
+worker 完成后自动汇总 combined_results.csv、combined_coefficients.csv、status_counts.csv。
+结果保存名义 Full ESS、所选校准理论 ESS、实际 ESS、EM 系数和来源标签。
+每次提交将运行代码复制到结果目录的 code_snapshot，worker 使用该副本。
+检查点版本为 11，DGM 为 webster2024_rr_ess_em_v2；
+不同 DGP/人群分布/EM/校准/拟合权重/CI 设置不允许复用。
+by_seed/seed_XXXXXX.rds 保存点估计、完整拟合、区间诊断、配置和源文件 MD5。
+
+单个目录绘图（把 RESULT_DIR 换成提交时打印的完整目录）：
+module load StdEnv/2023
+module load gcc/12.3 r/4.3.1
+Rscript "$MAIC_CODE_DIR/summary/plot_cluster_results.R" "RESULT_DIR" --format=png,pdf
+
+对所有新正式结果分别绘图：
+Rscript "$MAIC_CODE_DIR/summary/plot_cluster_results.R" "$SCRATCH/MAIC_ess_em_v2" --format=png,pdf
+
+默认图像保存在输入目录下 analysis_plots/by_run/各情形/。
+每个运行目录单独分析，不混合不同来源、强度、校准或 CI 模式的重复。
+可通过 --batch=文本 筛选运行目录，或 --out=目录 指定图像根目录。
+
+6. 可在 R 中直接运行的检查
+
+Rscript data/tests/check_webster_rr_scenarios.R
+Rscript estimation/tests/check_ess_em_cluster_settings.R
+Rscript estimation/tests/run_cluster_ess_em_smoke.R "$MAIC_CODE_DIR" "新的输出目录" 1
+
+最后一条包含真实 BC 计算，应在分配的计算节点运行。
+现有旧 submit_common_grid.sh 等入口仍默认 legacy DGP。运行新方案请使用 submit_ess_em_grid.sh。

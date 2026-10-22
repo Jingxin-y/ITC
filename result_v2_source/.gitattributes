@@ -1,0 +1,2 @@
+# Preserve the byte checksums of the frozen sharing bundle on checkout.
+* -text

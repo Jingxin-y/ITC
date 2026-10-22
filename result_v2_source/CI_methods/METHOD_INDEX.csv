@@ -1,0 +1,6 @@
+﻿scale,method,ci_label,function,review_file,canonical_file,start_line,level,sha256
+RR,brm,BC (export label: Exact),exact_marginal_target,CI_methods/RR/estimation/helpers/CI_marginal_target.R,RR/code/estimation/helpers/CI_marginal_target.R,302,0.95,c4d2a5f581b665b0148cdf7af1673c8c7291b5854967f9bef1770c5d8641f544
+RR,brm-FC,BC (export label: Exact),exact_marginal_target,CI_methods/RR/estimation/helpers/CI_marginal_target.R,RR/code/estimation/helpers/CI_marginal_target.R,302,0.95,c4d2a5f581b665b0148cdf7af1673c8c7291b5854967f9bef1770c5d8641f544
+RD,brm-BC,BC,exact_marginal_rd_target,CI_methods/RD/RD/estimation/CI_marginal_rd_target.R,RD/code/RD/estimation/CI_marginal_rd_target.R,381,0.95,bd3b211aaadc39fc1e64e8866878264acecad0a9e7eb37a03651620c62aee5c2
+RD,brm-FC-BC,BC,exact_marginal_rd_target,CI_methods/RD/RD/estimation/CI_marginal_rd_target.R,RD/code/RD/estimation/CI_marginal_rd_target.R,381,0.95,bd3b211aaadc39fc1e64e8866878264acecad0a9e7eb37a03651620c62aee5c2
+RD,MN_eff,MN-ESS,rd_mn_interval,CI_methods/RD/RD/estimation/rd_methods.R,RD/code/RD/estimation/rd_methods.R,185,0.95,569cc7c499e0aeacddc42bf90816723438ff3d55b5c82d53f6dfc633e2587dbd
