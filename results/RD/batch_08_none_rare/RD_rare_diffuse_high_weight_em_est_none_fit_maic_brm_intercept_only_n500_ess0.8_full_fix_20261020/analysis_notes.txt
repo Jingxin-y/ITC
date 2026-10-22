@@ -1,0 +1,6 @@
+Target: BC population marginal A-C RD, on the natural RD scale.
+Bias boxplots use individual estimate-minus-truth errors, one per method per seed.
+Accuracy = mean(SE) / SD(estimates), calculated on the SAME SE-valid Wald replicates.
+BC and MN_eff provide no model SE and are excluded from the accuracy figure.
+Coverage uses valid returned intervals. Also inspect returned_ci_fraction and returned_and_covered_fraction.
+Display clipping affects pictures only, never the metrics. Different runs are not pooled.
