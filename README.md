@@ -1,12 +1,14 @@
 # Indirect treatment comparison: RR / RD
 
-RR 与 RD 的源码和当前 result_v2 绘图结果。
+RR 与 RD 的源码、当前 result_v2 绘图结果和逐次估计 CSV。
 
 | 目录 | 内容 |
 |---|---|
 | [code](code) | 完整 RR/RD 源码、非 Wald CI 审阅文件、绘图程序和配置 |
 | [results](results) | RR、RD 各 288 个情景的 PNG、PDF、指标表和说明 |
+| [original result](original%20result) | RR、RD 各 288 份逐次结果 CSV、情景配置和校验信息 |
 
+- [逐次原始结果与校验](original%20result/README.md)
 - [中文代码使用说明](code/README_zh.txt)
 - [非 Wald 置信区间](code/CI_methods/README_zh.md)
 - [绘图代码](code/plotting/README_zh.txt)

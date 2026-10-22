@@ -1,0 +1,14 @@
+{
+  "scope": "Saved per-replicate CSVs, scenario configuration and checksums only",
+  "source_plan": "/scratch/yanjin41/ITC_raw_parts_v2_24947571/plan.json",
+  "source_plan_sha256": "40d398c3fe53462f4b8f5bf674318f2a6a1e55e8f86f79c6ec848c331c23ccfe",
+  "created_at_utc": "2026-10-22T19:02:08.115090+00:00",
+  "slurm_job_id": "24971435",
+  "scenarios_per_scale": 288,
+  "replicates_per_scenario": 1000,
+  "raw_csv_bytes": 4998325946,
+  "seed_RDS_included": false,
+  "models_or_individual_data_included": false,
+  "csv_rows_filtered": false,
+  "simulations_or_CI_recomputed": false
+}
