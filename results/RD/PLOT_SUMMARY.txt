@@ -1,7 +1,0 @@
-Plot: COMPLETE
-Verified tasks: 8 / 8
-Verified plotted scenarios: 288 / 288
-Expected: scores/unit 144; none/maic 144; MC1000 each.
-Per scenario: bias.png, se.png, accuracy.png, coverage.png, metrics.pdf (four pages).
-Plots checked against merged statistical tables; source results read only.
-Task logs: /scratch/yanjin41/RD_merged288_20261021_110733_2451230/plot_jobs/20261021_115208_3067628/logs

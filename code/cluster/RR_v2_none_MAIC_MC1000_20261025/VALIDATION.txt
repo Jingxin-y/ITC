@@ -1,0 +1,52 @@
+RR_v2_none_MAIC_MC1000_20261025 -- verified locally 2026-10-25
+PREPARED ONLY; no Nibi upload/submission or production bootstrap experiment.
+
+Scientific source and design: PASS
+- All 113 runtime files are byte-identical to RR_v2_full24_MC1000_20261024/code.
+- Final CI helper matches the previously unified multistart/nlminb/cutoff version.
+- Eight requested Common/Rare x n=100/500 x ESS=.15/.50 cases in the exact order.
+- All use v2, diffuse, high EM, all six calibration covariates and seeds 1..1000.
+- Every task selects estimation_mode=none and model_weighting=maic.
+- All R sources parse; actual v2 population risks and full CI controls verified.
+
+Fitting/CI wiring: PASS (real point fits; CI replaced by a test spy)
+- All-method formal entry uses intercept-only RR/OP designs without scores.
+- Actual model fitting receives non-unit MAIC calibration weights.
+- Captured ordinary BRM optimizer input weights match the MAIC weights.
+- Optimizer objective equals an independently evaluated MAIC-weighted binomial
+  log likelihood, and differs from the unweighted objective at the same parameters.
+- All three Exact branches receive MAIC fitting and standardization weights,
+  600/1000/1000, p-value B=500, multistart and nlminb fallback controls.
+- The same seed reproduces the public v2 generator's outcomes/treatment/raw covariates.
+- n=100 denotes 100 observations per trial, 50 per observed arm.
+- A completed weighted seed is reused without changing its bytes.
+- A none+unit checkpoint is rejected, not relabelled as none+MAIC.
+- The original ordinary BRM alternating optimizer and its stopping tolerances
+  are retained. At the wiring fixture, its logRR differs from the exact ratio of
+  empirical weighted arm risks by approximately 0.00571. No point optimizer or
+  stopping rule was changed; this check establishes weighted likelihood wiring,
+  not exact attainment of the analytic saturated MLE.
+
+Workflow and automatic continuation: PASS
+- Preflight creates eight independent configurations; no bootstrap runs there.
+- One array with tasks 1..8: 64 CPUs,10G,04:00:00, without throttle or chunks.
+- Normal reporting depends on afterany of that array.
+- Automatic checker waits on this package's own array, excludes old unit jobs,
+  and creates no duplicate chain on repeated attachment.
+- Missing weighted-none tasks are submitted at 64 CPUs/10G/4h again, followed
+  by another afterany checker. Tested with real preflight and real scanner,
+  mocked sbatch/squeue; no compute workers were executed by the mock scheduler.
+- Separate two-seed fixtures verify partial/missing/completed records, source
+  integrity, completed-but-unavailable intervals, corruption, no-progress stop
+  and maximum-wave stop. Production scanner still defaults to all 1000 seeds.
+- Incomplete-report fixture: 8 cases, 1 processed record, 7999 missing; all
+  18 original method/CI rows and planned-1000 denominators retained.
+- Seven Bash entry scripts pass syntax checks. Windows mocks flock; deployed
+  scripts use the real Linux utility.
+
+Delivery: PASS
+- Independent RRNMW namespace and dedicated results directory.
+- Original unit and score packages/results are not modified or cancelled.
+- SHA256 manifests for root and auto/; archive checksum; Unix LF line endings.
+- Archive excludes all local audit logs, synthetic records and fixtures.
+See audit/wiring.log, auto_records.log, collect.log and validation/ locally.

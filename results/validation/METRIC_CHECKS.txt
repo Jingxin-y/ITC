@@ -1,0 +1,3 @@
+PASS: all 48 RR/RD cell metrics matched the independent 2026-10-26 CSV audit.
+PASS: all 16 STC scope/cell metrics matched the source method_summary.csv STC rows.
+No model fitting, simulation or interval inversion was performed.

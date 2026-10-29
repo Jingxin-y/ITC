@@ -1,0 +1,135 @@
+{
+  "date": "2026-10-28",
+  "source": "D:/codexresults/ITC/Nibi",
+  "archives": [
+    {
+      "archive": "RD_none_MAIC_combined_results_20261026.tar.gz",
+      "sha256": "4f0d12610db4c9dc93ccde945420a66babffa4a6ab27a021b7df3685650c318b",
+      "files": 15,
+      "bytes": 42147015,
+      "internal_SHA256_entries_verified": 14
+    },
+    {
+      "archive": "RD_none_summary_20261025.tar.gz",
+      "sha256": "9c11c299bc12438f6593acd4a5bdf18355bf277e3093eadf2e792f6c7f009ced",
+      "files": 17,
+      "bytes": 58446,
+      "internal_SHA256_entries_verified": 16
+    },
+    {
+      "archive": "RD_score_MAIC_combined_results_20261026.tar.gz",
+      "sha256": "1e8189911275f62c32f5ace3cf4d644ba0fc2a7477ea1514856afa889baa80cf",
+      "files": 15,
+      "bytes": 41554222,
+      "internal_SHA256_entries_verified": 14
+    },
+    {
+      "archive": "RD_score_unit_combined_results_20261026.tar.gz",
+      "sha256": "614959381577c659404d4488846a2c3778b3258007430439186f47eacec0cd7b",
+      "files": 15,
+      "bytes": 41083641,
+      "internal_SHA256_entries_verified": 14
+    },
+    {
+      "archive": "RR_none_MAIC_combined_results_20261026.tar.gz",
+      "sha256": "b498675aecb66e0fac3e54505b7f21cd02141d15cc9328ee53a77062406fd807",
+      "files": 15,
+      "bytes": 105060900,
+      "internal_SHA256_entries_verified": 14
+    },
+    {
+      "archive": "RR_none_MAIC_summary_20261025.tar.gz",
+      "sha256": "933966d2d195ec5068314e044b7e290d88e159e907aa60917e840d1e7e52179f",
+      "files": 19,
+      "bytes": 48659,
+      "internal_SHA256_entries_verified": 18
+    },
+    {
+      "archive": "RR_none_summary_20261025.tar.gz",
+      "sha256": "be5d1e978bd635c9c9ac2b0d46fcbc655045a23c59976b6b1f6c64764236c909",
+      "files": 17,
+      "bytes": 44989,
+      "internal_SHA256_entries_verified": 16
+    },
+    {
+      "archive": "RR_score_MAIC_combined_results_20261026.tar.gz",
+      "sha256": "9df8ca8f9e96a68d1e90f51bfee49e9393da0344796188e83a9bb9c036841cae",
+      "files": 15,
+      "bytes": 102712157,
+      "internal_SHA256_entries_verified": 14
+    },
+    {
+      "archive": "RR_score_MAIC_summary_20261025.tar.gz",
+      "sha256": "4481c69cba099ce616d93f1c2f09041c8a90ca228d4064b90ff726b27a55856d",
+      "files": 19,
+      "bytes": 50771,
+      "internal_SHA256_entries_verified": 18
+    },
+    {
+      "archive": "RR_score_unit_combined_results_20261026.tar.gz",
+      "sha256": "e27c27245e951864d23f59961af402959054c7b239184466e8d116a8c1b47fc9",
+      "files": 15,
+      "bytes": 95928847,
+      "internal_SHA256_entries_verified": 14
+    },
+    {
+      "archive": "RR_score_unit_summary_20261025.tar.gz",
+      "sha256": "a9ad8e5ee5432493d32e9a8c504701d057a00affb2bdaf98df43466743a18bca",
+      "files": 19,
+      "bytes": 49584,
+      "internal_SHA256_entries_verified": 18
+    },
+    {
+      "archive": "STC_RR_results_20261026.tar.gz",
+      "sha256": "d97028f9056b5a20a385f6cf22f59ea4e2ea69a50edba9de28fd00638819844b",
+      "files": 12,
+      "bytes": 342999446,
+      "internal_SHA256_entries_verified": 0
+    }
+  ],
+  "RR_RD_CSVs": 48,
+  "RR_RD_rows": 648000,
+  "all_48_cells_complete": true,
+  "seeds_per_cell": 1000,
+  "runtime_fingerprints": [
+    {
+      "scale": "RR",
+      "analysis": "none_MAIC",
+      "files": 113,
+      "all_match": true
+    },
+    {
+      "scale": "RR",
+      "analysis": "score_unit",
+      "files": 113,
+      "all_match": true
+    },
+    {
+      "scale": "RR",
+      "analysis": "score_MAIC",
+      "files": 113,
+      "all_match": true
+    },
+    {
+      "scale": "RD",
+      "analysis": "none_MAIC",
+      "files": 147,
+      "all_match": true
+    },
+    {
+      "scale": "RD",
+      "analysis": "score_unit",
+      "files": 147,
+      "all_match": true
+    },
+    {
+      "scale": "RD",
+      "analysis": "score_MAIC",
+      "files": 147,
+      "all_match": true
+    }
+  ],
+  "STC_code_MD5_matches_saved_configuration": true,
+  "original_source_archives_modified": false,
+  "models_or_intervals_recomputed": false
+}

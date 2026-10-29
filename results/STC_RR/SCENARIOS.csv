@@ -1,0 +1,17 @@
+"uncertainty","scenario_id","cell","results_path","nsim"
+"bc_mean_delta",1,"S01_common_n100_ess015_score_unit","STC_RR/bc_mean_delta/S01_common_n100_ess015_score_unit",1000
+"bc_mean_delta",2,"S02_common_n100_ess050_score_unit","STC_RR/bc_mean_delta/S02_common_n100_ess050_score_unit",1000
+"bc_mean_delta",3,"S03_common_n500_ess015_score_unit","STC_RR/bc_mean_delta/S03_common_n500_ess015_score_unit",1000
+"bc_mean_delta",4,"S04_common_n500_ess050_score_unit","STC_RR/bc_mean_delta/S04_common_n500_ess050_score_unit",1000
+"bc_mean_delta",5,"S05_rare_n100_ess015_score_unit","STC_RR/bc_mean_delta/S05_rare_n100_ess015_score_unit",1000
+"bc_mean_delta",6,"S06_rare_n100_ess050_score_unit","STC_RR/bc_mean_delta/S06_rare_n100_ess050_score_unit",1000
+"bc_mean_delta",7,"S07_rare_n500_ess015_score_unit","STC_RR/bc_mean_delta/S07_rare_n500_ess015_score_unit",1000
+"bc_mean_delta",8,"S08_rare_n500_ess050_score_unit","STC_RR/bc_mean_delta/S08_rare_n500_ess050_score_unit",1000
+"fixed_bc_summary",1,"S01_common_n100_ess015_score_unit","STC_RR/fixed_bc_summary/S01_common_n100_ess015_score_unit",1000
+"fixed_bc_summary",2,"S02_common_n100_ess050_score_unit","STC_RR/fixed_bc_summary/S02_common_n100_ess050_score_unit",1000
+"fixed_bc_summary",3,"S03_common_n500_ess015_score_unit","STC_RR/fixed_bc_summary/S03_common_n500_ess015_score_unit",1000
+"fixed_bc_summary",4,"S04_common_n500_ess050_score_unit","STC_RR/fixed_bc_summary/S04_common_n500_ess050_score_unit",1000
+"fixed_bc_summary",5,"S05_rare_n100_ess015_score_unit","STC_RR/fixed_bc_summary/S05_rare_n100_ess015_score_unit",1000
+"fixed_bc_summary",6,"S06_rare_n100_ess050_score_unit","STC_RR/fixed_bc_summary/S06_rare_n100_ess050_score_unit",1000
+"fixed_bc_summary",7,"S07_rare_n500_ess015_score_unit","STC_RR/fixed_bc_summary/S07_rare_n500_ess015_score_unit",1000
+"fixed_bc_summary",8,"S08_rare_n500_ess050_score_unit","STC_RR/fixed_bc_summary/S08_rare_n500_ess050_score_unit",1000

@@ -1,0 +1,9 @@
+#!/bin/bash
+export RDFULL_HOME
+RDFULL_HOME=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+export RDFULL_OUT="${RDFULL_OUT:-${SCRATCH:-/scratch/$USER}/RD_v2_full24_MC1000_results_20261024}"
+export RDFULL_ACCOUNT="${RDFULL_ACCOUNT:-def-liteep}"
+# Per-analysis defaults live in resources.csv. Optional overrides use
+# RDFULL_NONE_{CPUS,MEM,TIME}, RDFULL_SCORE_{CPUS,MEM,TIME_N100,TIME_N500},
+# RDFULL_MAIC_{CPUS,MEM,TIME_N100,TIME_N500}.
+export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 BLIS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1

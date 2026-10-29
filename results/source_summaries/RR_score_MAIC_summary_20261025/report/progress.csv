@@ -1,0 +1,9 @@
+"task_id","cell","records","processed","incomplete","missing"
+3,"S01_common_n100_ess015_score_MAIC",1000,1000,0,0
+6,"S02_common_n100_ess050_score_MAIC",1000,1000,0,0
+9,"S03_common_n500_ess015_score_MAIC",1000,1000,0,0
+12,"S04_common_n500_ess050_score_MAIC",1000,1000,0,0
+15,"S05_rare_n100_ess015_score_MAIC",1000,1000,0,0
+18,"S06_rare_n100_ess050_score_MAIC",1000,1000,0,0
+21,"S07_rare_n500_ess015_score_MAIC",1000,1000,0,0
+24,"S08_rare_n500_ess050_score_MAIC",1000,1000,0,0

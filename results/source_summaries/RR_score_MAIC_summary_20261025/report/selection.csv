@@ -1,0 +1,9 @@
+"task_id","scenario_id","event","n","ess_ratio","analysis","estimation_mode","model_weighting","ess_source","em_level","weight_mode","nsim","first_seed","cell","completion_marker_verified","included"
+3,1,"common",100,0.15,"score_MAIC","scores","maic","diffuse","high","all",1000,1,"S01_common_n100_ess015_score_MAIC",TRUE,TRUE
+6,2,"common",100,0.5,"score_MAIC","scores","maic","diffuse","high","all",1000,1,"S02_common_n100_ess050_score_MAIC",TRUE,TRUE
+9,3,"common",500,0.15,"score_MAIC","scores","maic","diffuse","high","all",1000,1,"S03_common_n500_ess015_score_MAIC",TRUE,TRUE
+12,4,"common",500,0.5,"score_MAIC","scores","maic","diffuse","high","all",1000,1,"S04_common_n500_ess050_score_MAIC",TRUE,TRUE
+15,5,"rare",100,0.15,"score_MAIC","scores","maic","diffuse","high","all",1000,1,"S05_rare_n100_ess015_score_MAIC",TRUE,TRUE
+18,6,"rare",100,0.5,"score_MAIC","scores","maic","diffuse","high","all",1000,1,"S06_rare_n100_ess050_score_MAIC",TRUE,TRUE
+21,7,"rare",500,0.15,"score_MAIC","scores","maic","diffuse","high","all",1000,1,"S07_rare_n500_ess015_score_MAIC",TRUE,TRUE
+24,8,"rare",500,0.5,"score_MAIC","scores","maic","diffuse","high","all",1000,1,"S08_rare_n500_ess050_score_MAIC",TRUE,TRUE

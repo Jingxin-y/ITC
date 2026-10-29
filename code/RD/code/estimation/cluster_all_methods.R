@@ -301,8 +301,9 @@ maic_run_seed <- function(code_dir, run_dir, seed, ci_mode = c("full", "smoke"),
   }
   stopifnot(length(seed) == 1L, is.finite(seed), seed >= 1L,
     seed == floor(seed), seed <= .Machine$integer.max - 1000000L)
-  controls <- if (ci_mode == "full") list(nsim.coarse = 100L, nsim.confirm = 200L,
-    nsim.refine = 200L, nsim.p.value = 500L, time.limit.sec = 10800) else
+  controls <- if (ci_mode == "full") list(nsim.coarse = 600L, nsim.confirm = 1000L,
+    nsim.refine = 1000L, nsim.p.value = 500L, time.limit.sec = 10800,
+    optim.multistart = TRUE, optim.multistart.max = 3L, optim.fallback = TRUE) else
     list(nsim.coarse = 5L, nsim.confirm = 10L, nsim.refine = 10L, nsim.p.value = 20L,
          search.mult = .5, grid.mult = 25, thres.dicho = .05, bisection.max.step = 8L,
          compute.p.value = FALSE, time.limit.sec = 180)

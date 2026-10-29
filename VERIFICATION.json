@@ -1,0 +1,95 @@
+{
+  "date": "2026-10-28",
+  "source_directory": "D:/codexresults/ITC/Nibi",
+  "source_archives": 12,
+  "all_source_archive_SHA256": "PASS",
+  "internal_package_SHA256_and_export_MD5": "PASS",
+  "RR_RD_analysis_cells": {
+    "RR": 24,
+    "RD": 24
+  },
+  "data_scenarios_per_scale": 8,
+  "analyses": [
+    "none_MAIC",
+    "score_unit",
+    "score_MAIC"
+  ],
+  "seeds_per_cell": 1000,
+  "RR_RD_result_rows": {
+    "RR": 432000,
+    "RD": 216000
+  },
+  "duplicate_or_missing_seed_method_keys": 0,
+  "STC_RR_result_rows": 192000,
+  "STC_RR_paired_rows": 192000,
+  "STC_scope_cell_plot_sets": 16,
+  "PNG_files": 256,
+  "PDF_files": 64,
+  "PDF_pages_each": 4,
+  "runtime_code_SHA256_matches": [
+    {
+      "scale": "RR",
+      "analysis": "none_MAIC",
+      "files": 113,
+      "all_match": true
+    },
+    {
+      "scale": "RR",
+      "analysis": "score_unit",
+      "files": 113,
+      "all_match": true
+    },
+    {
+      "scale": "RR",
+      "analysis": "score_MAIC",
+      "files": 113,
+      "all_match": true
+    },
+    {
+      "scale": "RD",
+      "analysis": "none_MAIC",
+      "files": 147,
+      "all_match": true
+    },
+    {
+      "scale": "RD",
+      "analysis": "score_unit",
+      "files": 147,
+      "all_match": true
+    },
+    {
+      "scale": "RD",
+      "analysis": "score_MAIC",
+      "files": 147,
+      "all_match": true
+    }
+  ],
+  "STC_code_MD5_matches_saved_RDS_config": true,
+  "R_source_parse_and_load": {
+    "RR_files": 99,
+    "RD_files": 121,
+    "R_version": "4.3.2",
+    "status": "PASS"
+  },
+  "CI_defaults": {
+    "coarse": 600,
+    "confirm": 1000,
+    "refine": 1000,
+    "p_value": 500,
+    "level": 0.95,
+    "bisection_max": 15
+  },
+  "numerical_metric_checks": [
+    "PASS: all 48 RR/RD cell metrics matched the independent 2026-10-26 CSV audit.",
+    "PASS: all 16 STC scope/cell metrics matched the source method_summary.csv STC rows.",
+    "No model fitting, simulation or interval inversion was performed."
+  ],
+  "numerical_accuracy_checks": [
+    "PASS: RR/RD SE-subset counts, SD and Accuracy matched 648 independent reference rows; STC SE/SD/Accuracy independently recomputed for 192 groups."
+  ],
+  "verified_navigation_links": 53,
+  "large_CSVs_losslessly_gzip_compressed": 2,
+  "source_archives_modified": false,
+  "simulations_or_fitting_or_intervals_rerun": false,
+  "supplemental_none_unit_summaries_separated": true
+}

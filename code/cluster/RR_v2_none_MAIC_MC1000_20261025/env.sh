@@ -1,0 +1,6 @@
+#!/bin/bash
+export RRNMW_HOME
+RRNMW_HOME=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)
+export RRNMW_OUT="${RRNMW_OUT:-${SCRATCH:-/scratch/$USER}/RR_v2_none_MAIC_MC1000_results_20261025}"
+export RRNMW_ACCOUNT="${RRNMW_ACCOUNT:-def-liteep}"
+export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 BLIS_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1

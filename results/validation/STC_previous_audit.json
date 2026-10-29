@@ -1,0 +1,382 @@
+{
+  "material_passport": {
+    "origin_skill": "academic-research-suite",
+    "origin_mode": "validate",
+    "origin_date": "2026-10-26",
+    "verification_status": "ANALYZED",
+    "scope": "archive integrity, completeness and internal consistency; no refits or simulation"
+  },
+  "archive": "D:\\codexresults\\ITC\\Nibi\\STC_RR_results_20261026.tar.gz",
+  "archive_bytes": 38124159,
+  "sha256": "d97028f9056b5a20a385f6cf22f59ea4e2ea69a50edba9de28fd00638819844b",
+  "sha256_matches": true,
+  "checked_conditions": {
+    "archive_sha256": 1,
+    "gzip_crc_and_eof": 1,
+    "unique_archive_members": 1,
+    "archive_paths_safe": 14,
+    "required_reports": 1,
+    "stderr_empty": 1,
+    "finished_log": 1,
+    "no_input_issue_log": 1,
+    "job_log_present": 1,
+    "input_audit_exact_slots": 1,
+    "all_sources_available": 8000,
+    "all_source_records_complete": 8000,
+    "source_hash_unchanged": 8000,
+    "unique_result_key": 192000,
+    "result_metadata": 192000,
+    "result_source_hash": 192000,
+    "point_numeric_valid": 174884,
+    "risk_ratio_math": 174884,
+    "interval_numeric_valid": 174884,
+    "wald_and_variance_math": 174884,
+    "rr_interval_math": 174884,
+    "fixed_target_variance_zero": 87442,
+    "identical_point_across_scopes": 96000,
+    "bc_mean_se_not_smaller": 87442,
+    "exact_192000_result_keys": 1,
+    "24_rows_per_seed": 8000,
+    "audit_return_counts": 8000,
+    "status_counts_recomputed": 1,
+    "failure_list_complete": 1,
+    "paired_unique": 192000,
+    "paired_identical_stc_fields": 192000,
+    "paired_flags": 192000,
+    "paired_difference": 192000,
+    "baseline_identical_across_scopes": 96000,
+    "paired_exact_keys": 1,
+    "summary_unique": 768,
+    "summary_metrics_recomputed": 768,
+    "summary_expected_rows": 2,
+    "paired_summary_recomputed": 192,
+    "paired_summary_expected_rows": 1,
+    "original_maic_eight_cells": 1,
+    "original_maic_pairing": 96000,
+    "original_maic_exact_keys": 1
+  },
+  "failed_checks": {},
+  "all_python_checks_passed": true,
+  "complete_sources": 8000,
+  "result_rows": 192000,
+  "paired_rows": 192000,
+  "successful_interval_rows": 174884,
+  "failure_rows": 17116,
+  "method_summary_rows": 384,
+  "paired_common_summary_rows": 384,
+  "paired_difference_rows": 192,
+  "original_maic_records_checked": 96000,
+  "scenario_completeness": [
+    {
+      "scenario_id": 1,
+      "event": "common",
+      "n": 100,
+      "ess_ratio": 0.15,
+      "source_records": 1000,
+      "complete_sources": 1000,
+      "seeds_1_to_1000": true,
+      "expected_rows": 24000,
+      "actual_rows": 24000,
+      "intervals_returned": 18544,
+      "method_failure_rows": 5456
+    },
+    {
+      "scenario_id": 2,
+      "event": "common",
+      "n": 100,
+      "ess_ratio": 0.5,
+      "source_records": 1000,
+      "complete_sources": 1000,
+      "seeds_1_to_1000": true,
+      "expected_rows": 24000,
+      "actual_rows": 24000,
+      "intervals_returned": 19196,
+      "method_failure_rows": 4804
+    },
+    {
+      "scenario_id": 3,
+      "event": "common",
+      "n": 500,
+      "ess_ratio": 0.15,
+      "source_records": 1000,
+      "complete_sources": 1000,
+      "seeds_1_to_1000": true,
+      "expected_rows": 24000,
+      "actual_rows": 24000,
+      "intervals_returned": 20936,
+      "method_failure_rows": 3064
+    },
+    {
+      "scenario_id": 4,
+      "event": "common",
+      "n": 500,
+      "ess_ratio": 0.5,
+      "source_records": 1000,
+      "complete_sources": 1000,
+      "seeds_1_to_1000": true,
+      "expected_rows": 24000,
+      "actual_rows": 24000,
+      "intervals_returned": 20900,
+      "method_failure_rows": 3100
+    },
+    {
+      "scenario_id": 5,
+      "event": "rare",
+      "n": 100,
+      "ess_ratio": 0.15,
+      "source_records": 1000,
+      "complete_sources": 1000,
+      "seeds_1_to_1000": true,
+      "expected_rows": 24000,
+      "actual_rows": 24000,
+      "intervals_returned": 23624,
+      "method_failure_rows": 376
+    },
+    {
+      "scenario_id": 6,
+      "event": "rare",
+      "n": 100,
+      "ess_ratio": 0.5,
+      "source_records": 1000,
+      "complete_sources": 1000,
+      "seeds_1_to_1000": true,
+      "expected_rows": 24000,
+      "actual_rows": 24000,
+      "intervals_returned": 23684,
+      "method_failure_rows": 316
+    },
+    {
+      "scenario_id": 7,
+      "event": "rare",
+      "n": 500,
+      "ess_ratio": 0.15,
+      "source_records": 1000,
+      "complete_sources": 1000,
+      "seeds_1_to_1000": true,
+      "expected_rows": 24000,
+      "actual_rows": 24000,
+      "intervals_returned": 24000,
+      "method_failure_rows": 0
+    },
+    {
+      "scenario_id": 8,
+      "event": "rare",
+      "n": 500,
+      "ess_ratio": 0.5,
+      "source_records": 1000,
+      "complete_sources": 1000,
+      "seeds_1_to_1000": true,
+      "expected_rows": 24000,
+      "actual_rows": 24000,
+      "intervals_returned": 24000,
+      "method_failure_rows": 0
+    }
+  ],
+  "method_return_counts": [
+    {
+      "method": "brm",
+      "planned_seeds": 8000,
+      "available": 7998,
+      "return_rate": 0.99975,
+      "fit_not_converged": 0,
+      "fit_missing": 0,
+      "coefficients_invalid": 0,
+      "target_support_missing": 2
+    },
+    {
+      "method": "brm-FC",
+      "planned_seeds": 8000,
+      "available": 7998,
+      "return_rate": 0.99975,
+      "fit_not_converged": 0,
+      "fit_missing": 0,
+      "coefficients_invalid": 0,
+      "target_support_missing": 2
+    },
+    {
+      "method": "LB",
+      "planned_seeds": 8000,
+      "available": 7914,
+      "return_rate": 0.98925,
+      "fit_not_converged": 82,
+      "fit_missing": 2,
+      "coefficients_invalid": 2,
+      "target_support_missing": 0
+    },
+    {
+      "method": "LP",
+      "planned_seeds": 8000,
+      "available": 8000,
+      "return_rate": 1.0,
+      "fit_not_converged": 0,
+      "fit_missing": 0,
+      "coefficients_invalid": 0,
+      "target_support_missing": 0
+    },
+    {
+      "method": "RLB",
+      "planned_seeds": 8000,
+      "available": 7914,
+      "return_rate": 0.98925,
+      "fit_not_converged": 0,
+      "fit_missing": 86,
+      "coefficients_invalid": 0,
+      "target_support_missing": 0
+    },
+    {
+      "method": "RLP",
+      "planned_seeds": 8000,
+      "available": 8000,
+      "return_rate": 1.0,
+      "fit_not_converged": 0,
+      "fit_missing": 0,
+      "coefficients_invalid": 0,
+      "target_support_missing": 0
+    },
+    {
+      "method": "LB-FC",
+      "planned_seeds": 8000,
+      "available": 5603,
+      "return_rate": 0.700375,
+      "fit_not_converged": 2397,
+      "fit_missing": 0,
+      "coefficients_invalid": 0,
+      "target_support_missing": 0
+    },
+    {
+      "method": "RLB-FC",
+      "planned_seeds": 8000,
+      "available": 5603,
+      "return_rate": 0.700375,
+      "fit_not_converged": 2397,
+      "fit_missing": 0,
+      "coefficients_invalid": 0,
+      "target_support_missing": 0
+    },
+    {
+      "method": "LP-FC",
+      "planned_seeds": 8000,
+      "available": 7992,
+      "return_rate": 0.999,
+      "fit_not_converged": 8,
+      "fit_missing": 0,
+      "coefficients_invalid": 0,
+      "target_support_missing": 0
+    },
+    {
+      "method": "RLP-FC",
+      "planned_seeds": 8000,
+      "available": 7992,
+      "return_rate": 0.999,
+      "fit_not_converged": 8,
+      "fit_missing": 0,
+      "coefficients_invalid": 0,
+      "target_support_missing": 0
+    },
+    {
+      "method": "LP-BFC",
+      "planned_seeds": 8000,
+      "available": 6214,
+      "return_rate": 0.77675,
+      "fit_not_converged": 1786,
+      "fit_missing": 0,
+      "coefficients_invalid": 0,
+      "target_support_missing": 0
+    },
+    {
+      "method": "RLP-BFC",
+      "planned_seeds": 8000,
+      "available": 6214,
+      "return_rate": 0.77675,
+      "fit_not_converged": 1786,
+      "fit_missing": 0,
+      "coefficients_invalid": 0,
+      "target_support_missing": 0
+    }
+  ],
+  "logs": {
+    "STC_RR_reuse_20261026/logs/STC_25060684.err": {
+      "bytes": 0,
+      "tail": []
+    },
+    "STC_RR_reuse_20261026/logs/STC_25060684.out": {
+      "bytes": 36085,
+      "tail": [
+        "STC REUSE S08_rare_n500_ess050_score_unit seed=925 input=available points=12/12 intervals=24/24 cached=FALSE",
+        "STC REUSE S08_rare_n500_ess050_score_unit seed=950 input=available points=12/12 intervals=24/24 cached=FALSE",
+        "STC REUSE S08_rare_n500_ess050_score_unit seed=975 input=available points=12/12 intervals=24/24 cached=FALSE",
+        "STC REUSE S08_rare_n500_ess050_score_unit seed=1000 input=available points=12/12 intervals=24/24 cached=FALSE",
+        "FINISHED: 8000 source slots, 192000 STC rows. Report: /scratch/yanjin41/STC_RR_reuse_results_20261026/report"
+      ]
+    }
+  },
+  "limitations": [
+    "Individual seed RDS files intentionally excluded from download; original coefficient vectors and nuisance fits were not re-audited here.",
+    "Source integrity is supported by saved per-file audit checksums; current remote RDS bytes were not independently accessed.",
+    "Completeness is distinct from per-method success and interval coverage."
+  ],
+  "fallacy_scan": {
+    "coverage": "11/11 scoped",
+    "survivorship": "method-specific and paired-common denominators recomputed; all attempted seeds retained",
+    "simpsons_paradox": "scenario-stratified counts; no pooled superiority inference",
+    "ecological_fallacy": "no individual-level inference",
+    "berksons_paradox": "no new selection applied",
+    "collider_bias": "no covariate adjustment changed",
+    "base_rate_neglect": "no diagnostic-accuracy claim",
+    "regression_to_mean": "no before/after inference",
+    "look_elsewhere": "all twelve prespecified models retained",
+    "garden_of_forking_paths": "audit follows fixed row/schema and original source settings",
+    "correlation_causation": "no causal claim",
+    "reverse_causality": "no directional causal claim"
+  },
+  "r_metadata_checks": {
+    "total": 14,
+    "all_passed": true,
+    "failed": []
+  },
+  "all_checks_passed": true,
+  "numeric_diagnostics": {
+    "prediction_out_of_bounds_rows": 21780,
+    "RR_upper_infinite_rows": 1302,
+    "RR_lower_zero_rows": 1302
+  },
+  "target_support_missing_cases": [
+    {
+      "scenario_id": "1",
+      "event": "common",
+      "n_AC": "100",
+      "ess_ratio": "0.15",
+      "seed": "544",
+      "method": "brm",
+      "message": "No saved nuisance cell for target EM score(s): 0"
+    },
+    {
+      "scenario_id": "1",
+      "event": "common",
+      "n_AC": "100",
+      "ess_ratio": "0.15",
+      "seed": "544",
+      "method": "brm-FC",
+      "message": "No saved nuisance cell for target EM score(s): 0"
+    },
+    {
+      "scenario_id": "5",
+      "event": "rare",
+      "n_AC": "100",
+      "ess_ratio": "0.15",
+      "seed": "544",
+      "method": "brm",
+      "message": "No saved nuisance cell for target EM score(s): 0"
+    },
+    {
+      "scenario_id": "5",
+      "event": "rare",
+      "n_AC": "100",
+      "ess_ratio": "0.15",
+      "seed": "544",
+      "method": "brm-FC",
+      "message": "No saved nuisance cell for target EM score(s): 0"
+    }
+  ],
+  "archive_unchanged_after_audit": true
+}

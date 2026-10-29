@@ -1,0 +1,6 @@
+Input: saved per-replicate CSV; all 1000 seeds and failed rows retained.
+Input MD5: 0e2e118368340c57e76bc8a32c6777be
+Coverage = covered / valid intervals with truth.
+Interval return rate and returned-and-covered fraction use planned MC1000.
+Accuracy uses mean valid model SE / empirical SD on the same valid-SE subset.
+RR graphs omit brmad, LP-BFC and RLP-BFC for continuity with the existing plotting style; full tables retain all methods.

@@ -8,6 +8,7 @@
 ## guarantee with plug-in nuisance parameters. For RR + two-arm OP models only.
 ## All reported estimate/low/up values are log RR; effect.* values are RR.
 ## Base R only. Source this file, or use source_anchored().
+## Final RR runtime: RR_final_B600_F1000_20261024; default CI budget 600/1000/1000.
 ## Original L-BFGS-B attempts stay first; deterministic multistart/nlminb
 ## rescue runs only after those attempts fail, with unchanged fit criteria.
 
@@ -204,6 +205,7 @@ marginal_logrr_target <- function(pars, va, vb, weight = NULL, gradient = FALSE)
         list(converged = ok, psi = psi, par = z$par, alpha = z$par[seq_len(pa)],
              beta = z$par[pa+seq_len(pb)], value = z$value, target = z$target,
              constraint.error = z$constraint.error, optimizer.code = raw$convergence,
+              optimizer.message = if(is.null(raw$message)) "" else as.character(raw$message),
              max.projected.score = max(abs(pg)), counts = raw$counts,
              nuisance.boundary = any(abs(raw$par) >= bound-1e-6),
              clipped.probabilities = z$clipped.probabilities,
@@ -219,6 +221,7 @@ marginal_logrr_target <- function(pars, va, vb, weight = NULL, gradient = FALSE)
       attempts[[length(attempts)+1L]] <<- list(attempt=length(attempts)+1L,
         method=method, start.label=label, start=initial, maxit=limit, reltol=reltol,pgtol=pgtol,
         converged=fit$converged, optimizer.code=fit$optimizer.code,
+        optimizer.message=if(is.null(fit$optimizer.message)) "" else fit$optimizer.message,
         value=fit$value, max.projected.score=fit$max.projected.score,
         constraint.error=fit$constraint.error, reason=fit$reason,
         elapsed.sec=as.numeric(Sys.time())-t0)
@@ -305,7 +308,7 @@ exact_marginal_target <- function(param = "RR", y, x, va, vb, weight = NULL,
     vcov.pars = NULL, psi.se = NULL, level = .95, psi.null = 0,
     optim.maxit = max.step, optim.reltol = 1e-10, score.tol = 1e-4,
     thres.dicho = 1e-3, bisection.max.step = 15L, grid.mult = 2,
-    nsim.coarse = 100L, nsim.confirm = 200L, nsim.refine = 200L,
+    nsim.coarse = 600L, nsim.confirm = 1000L, nsim.refine = 1000L,
     nsim.p.value = 500L, search.mult = NULL, psi.range = NULL,
     alpha.bound = 15, beta.bound = 15, intercept = 1L,
     root.tol = 1e-10, root.maxit = 200L, constraint.tol = 1e-7,
@@ -496,15 +499,15 @@ exact_marginal_target <- function(param = "RR", y, x, va, vb, weight = NULL,
       z <- checked[[k]]
       if (is.null(z)) z <- evaluate.acceptability(grid[k],nsim.coarse,"coarse")
       if (!is.finite(z$acceptability)) return(fail(z))
-      if (z$acceptability >= 1-level) { inner <- grid[k]; next }
+      if (z$acceptability >= (1-level)-1e-12) { inner <- grid[k]; next }
       z <- evaluate.acceptability(grid[k],nsim.confirm,"confirm")
       if (!is.finite(z$acceptability)) return(fail(z))
-      if (z$acceptability >= 1-level) { inner <- grid[k]; next }
+      if (z$acceptability >= (1-level)-1e-12) { inner <- grid[k]; next }
       if (k < length(grid)) {
         next.z <- evaluate.acceptability(grid[k+1L],nsim.confirm,"confirm next")
         checked[[k+1L]] <- next.z
         if (!is.finite(next.z$acceptability)) return(fail(next.z))
-        if (next.z$acceptability >= 1-level) next
+        if (next.z$acceptability >= (1-level)-1e-12) next
       }
       outer <- grid[k]; break
     }
@@ -515,7 +518,7 @@ exact_marginal_target <- function(param = "RR", y, x, va, vb, weight = NULL,
       step <- step+1L; mid <- (inner+outer)/2
       z <- evaluate.acceptability(mid,nsim.refine,"refine")
       if (!is.finite(z$acceptability)) return(fail(z))
-      if (z$acceptability >= 1-level) inner <- mid else outer <- mid
+      if (z$acceptability >= (1-level)-1e-12) inner <- mid else outer <- mid
     }
     done <- abs(inner-outer) <= thres.dicho
     list(value=if(done) inner else NA_real_,last.accepted=inner,
@@ -540,6 +543,8 @@ exact_marginal_target <- function(param = "RR", y, x, va, vb, weight = NULL,
          optim.retries=optim.retries,optim.retry.maxit=optim.retry.maxit,
          optim.multistart=optim.multistart,optim.multistart.max=optim.multistart.max,
          optim.fallback=optim.fallback,optimizer.version="rr_bc_multistart_nlminb_v1",
+         final.version="RR_final_B600_F1000_20261024",
+         cutoff.rule="acceptability >= (1-level)-1e-12",cutoff.tolerance=1e-12,
          score.tol=score.tol,root.tol=root.tol,constraint.tol=constraint.tol,
          alpha.bound=alpha.bound,beta.bound=beta.bound,intercept=intercept,
          psi.range=psi.range,psi.se=psi.se,psi.se.source=psi.se.source,

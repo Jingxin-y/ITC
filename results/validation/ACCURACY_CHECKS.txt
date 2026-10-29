@@ -1,0 +1,1 @@
+PASS: RR/RD SE-subset counts, SD and Accuracy matched 648 independent reference rows; STC SE/SD/Accuracy independently recomputed for 192 groups.

@@ -1,0 +1,42 @@
+RD_v2_noneMAIC_MC1000_20261025 — local verification, 2026-10-25
+Resource revision: compute walltime reduced from 4h to 3h at the user's request.
+Scheduler parameter mocks and archive checks repeated; scientific fitting checks remain applicable.
+Status: PREPARED. No real cluster submission, bootstrap coverage pilot or formal Monte Carlo run.
+
+1. All 147 code/ runtime files match both the current RD full24 package and the final RD
+   B600/F1000 runtime byte for byte. No scientific source, solver tolerance or DGM changed.
+2. All shipped R sources parse. All four root shell scripts pass bash -n.
+3. All eight scenario definitions were loaded and checked: RD v2, diffuse/high/all,
+   nominal Full ESS=.15/.50, n=100/500 total per trial, data seeds 1..1000.
+   All tasks explicitly request estimation_mode=none and model_weighting=maic.
+4. A single real common/n100/ESS=.50/seed17 data-generation and model-fitting call was
+   checked. CI inversion was replaced by a spy, so this did not execute bootstrap.
+   The actual private brm and brm-FC fitting entry points received the nonconstant MAIC
+   observation weights. Both CI calls received the same MAIC fitting and standardization
+   weights, B=600/1000/1000, P-value budget=500, CI seed=1000017 and all recovery options.
+   The outcome model had no score/covariates; all six MAIC covariates balanced BC means.
+   All nine original methods remained in the record. The weighted GLM/LPM/direct methods
+   matched weighted arm risk differences. BRM and FC retain their existing numerical point
+   solvers and convergence tolerances; they were not replaced by analytic risk differences.
+5. Generated data matched the canonical seed17 generator, with 100 total subjects per
+   trial and 50/50 AC allocation. Completed records were reused without byte changes.
+   An incompatible none+unit record was rejected instead of being relabeled/reused.
+6. The actual run.R processed 1000 MOCK records through the output schema. This was a
+   software fixture, not a statistical simulation. Partial history preserved bytes, complete
+   records were reused, completed cells skipped, and incompatible controls rejected.
+   The report counted one processed cell and 7000 missing seeds across the other seven,
+   retained a failed interval and separated valid coverage from the 1000 planned denominator.
+   BC_boundary_truncated remained a valid interval outcome.
+7. Local scheduler mocks recorded exactly one compute array with task IDs 1..8, no %
+   throttle, --nodes=1 --ntasks=1 --cpus-per-task=64 --mem=10G --time=03:00:00.
+   One afterany report used 1 CPU / 8G / 1h. The active-job duplicate guard was checked.
+   No real sbatch, SSH or Nibi connection was used in these checks.
+8. Source manifests, SHA256SUMS, archive member bytes and external SHA256 were checked.
+   Local audit/validation fixtures are excluded from the portable archive.
+9. The output root and environment prefix are independent of the existing full24 run:
+   RD_v2_noneMAIC_MC1000_results_20261025 and RDNM_*.
+
+Resources follow the user's 64-core/10G/3h request; completion within three hours was not
+benchmarked. Existing checkpoints support resumption. The per-call internal exact-CI
+limit remains 10800 seconds, independent of the Slurm job's three-hour allocation.
+Detailed local logs are in audit/ and validation/, outside the portable archive.

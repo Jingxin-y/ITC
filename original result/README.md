@@ -1,26 +1,21 @@
-# Original per-replicate results: RR / RD
+# 最新 Nibi 逐次结果
 
-与当前 `result_v2` 绘图对应的逐次估计 CSV。RR、RD 各 288 个情景，每情景保留 seeds 1–1000；包含失败记录及其状态。
+RR 和 RD 各为 8 个数据情景 × 3 种分析（none_MAIC、score_unit、score_MAIC），每情景1000个seed。
+48份 `combined_results.csv` 按导出文件原字节保存，RR每seed18行，RD每seed9行；失败及不适用记录均保留。
+RD 的源文件名为 `anchored_rd_estimates.csv`，Nibi 导出时原样命名为 `combined_results.csv`。
 
-| 目录 | 文件与用途 |
-|---|---|
-| [RR](RR) | 每情景 `combined_results.csv`：每 seed 18 条方法/区间记录 |
-| [RD](RD) | 每情景 `anchored_rd_estimates.csv`：每 seed 9 条方法/区间记录 |
-| [config/SCENARIOS.csv](config/SCENARIOS.csv) | 情景参数、seed 数量、逐次 CSV 相对路径和集群来源 |
-| [checksums/FILES.csv](checksums/FILES.csv) | 全部 576 份 CSV 的字节数、MD5、SHA256 与来源 |
-| [SHA256SUMS](SHA256SUMS) | 原精简包内文件的 SHA256 |
-| [VERIFICATION.json](VERIFICATION.json) | 上传前的独立完整性核对记录 |
+- [情景与文件检索](config/SCENARIOS.csv)
+- [逐文件字节数和校验值](checksums/FILES.csv)
+- [原始导出包SHA256](checksums/SOURCE_ARCHIVES.csv)
+- [原始导出配置与来源](provenance)
+- [对应图表和指标](../results/README.md)
+- [对应代码](../code/README.md)
 
-RR 的 `estimate/low/up` 使用 log(RR) 尺度；`Exact` 是 BC 区间的原导出标签。RD 的 `estimate/lower/upper` 使用自然 RD 尺度。
-CSV 保留真值、点估计、区间和有效状态，供核对 coverage、Bias、SE、Accuracy 及重新绘图。
-Coverage 的分母为有效返回且有对应真值的区间数，需同时查看区间返回比例。
+RR 的 estimate/low/up 是 log(RR)，RD 的 estimate/lower/upper 是自然 RD。
+STC RR 放在 [STC_RR](STC_RR)：192000行后处理结果及配对报告，使用已保存的score_unit拟合，未重新拟合。
+`combined_results.csv.gz` 与 `paired_results.csv.gz` 是原始大CSV的无损gzip；GitHub普通Git不接受大于100MiB的单文件。校验表同时列出压缩文件和解压后原CSV的SHA256。
+STC的两个小RDS仅保存配置/运行元信息，不包含逐seed模型对象或个体数据；其余原始RDS仍在集群。
 
-来源为集群精简打包任务 `24971435`，沿用原始任务 `24947571` 的冻结清单。全部 CSV 按原字节保存；校验了各情景全部 1000 个 seed、方法/区间记录、原清单 MD5 和文件 SHA256。
-文件中的 scratch 路径用于记录来源；本目录的导航使用相对路径。完整 RDS、模型对象和模拟个体数据仍保存在集群。
-情景 ESS 比较允许 `1e-9` 的数值尾差；原 CSV 和配置文件均未改写。
-
-- [对应绘图结果](../results)
-- [计算及区间代码](../code)
-- [绘图运行说明](../code/plotting/README_zh.txt)
-
-`SHA256SUMS` 是原精简包的清单，不覆盖后加的本说明、`.gitattributes` 和 `VERIFICATION.json`。
+provenance 中的 exported_file 字段沿用原压缩包内路径。当前仓库导航使用 config/SCENARIOS.csv 的 csv_path。
+provenance 内原 MANIFEST.sha256 用于核对原导出包；当前目录请使用本目录 SHA256SUMS 和 checksums/FILES.csv。
+完整性核对见根目录 [VERIFICATION.json](../VERIFICATION.json)。

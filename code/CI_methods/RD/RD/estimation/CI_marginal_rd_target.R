@@ -378,13 +378,14 @@
        start = start, bound = bound, fit.weights = fw)
 }
 
+## Final runtime: RD_final_B600_F1000_20261024; corrected cutoff and B=600/1000/1000.
 exact_marginal_rd_target <- function(param = "RD", y, x, va, vb, weight = NULL,
     max.step = 200L, pars, pa = ncol(va), pb = ncol(vb),
     va.target = va, vb.target = vb, standardization.weight = NULL,
     vcov.pars = NULL, psi.se = NULL, level = .95, psi.null = 0,
     optim.maxit = max.step, optim.reltol = 1e-10, score.tol = 1e-4,
     thres.dicho = 1e-3, bisection.max.step = 15L, grid.mult = 2,
-    nsim.coarse = 100L, nsim.confirm = 200L, nsim.refine = 200L,
+    nsim.coarse = 600L, nsim.confirm = 1000L, nsim.refine = 1000L,
     nsim.p.value = 500L, search.mult = NULL, psi.range = NULL,
     alpha.bound = 15, beta.bound = 15, intercept = 1L,
     root.tol = 1e-10, root.maxit = 200L, constraint.tol = 1e-7,
@@ -582,15 +583,15 @@ exact_marginal_rd_target <- function(param = "RD", y, x, va, vb, weight = NULL,
       z <- checked[[k]]
       if (is.null(z)) z <- evaluate.acceptability(grid[k],nsim.coarse,"coarse")
       if (!is.finite(z$acceptability)) return(fail(z))
-      if (z$acceptability >= 1-level) { inner <- grid[k]; next }
+      if (z$acceptability >= (1-level)-1e-12) { inner <- grid[k]; next }
       z <- evaluate.acceptability(grid[k],nsim.confirm,"confirm")
       if (!is.finite(z$acceptability)) return(fail(z))
-      if (z$acceptability >= 1-level) { inner <- grid[k]; next }
+      if (z$acceptability >= (1-level)-1e-12) { inner <- grid[k]; next }
       if (k < length(grid)) {
         next.z <- evaluate.acceptability(grid[k+1L],nsim.confirm,"confirm next")
         checked[[k+1L]] <- next.z
         if (!is.finite(next.z$acceptability)) return(fail(next.z))
-        if (next.z$acceptability >= 1-level) next
+        if (next.z$acceptability >= (1-level)-1e-12) next
       }
       outer <- grid[k]; break
     }
@@ -601,7 +602,7 @@ exact_marginal_rd_target <- function(param = "RD", y, x, va, vb, weight = NULL,
       step <- step+1L; mid <- (inner+outer)/2
       z <- evaluate.acceptability(mid,nsim.refine,"refine")
       if (!is.finite(z$acceptability)) return(fail(z))
-      if (z$acceptability >= 1-level) inner <- mid else outer <- mid
+      if (z$acceptability >= (1-level)-1e-12) inner <- mid else outer <- mid
     }
     done <- abs(inner-outer) <= thres.dicho
     list(value=if(done) inner else NA_real_,last.accepted=inner,
@@ -626,6 +627,8 @@ exact_marginal_rd_target <- function(param = "RD", y, x, va, vb, weight = NULL,
          optim.retries=optim.retries,optim.retry.maxit=optim.retry.maxit,
          optim.multistart=optim.multistart,optim.multistart.max=optim.multistart.max,
          optim.fallback=optim.fallback,optimizer.version="rd_bc_multistart_nlminb_v1",
+         final.version="RD_final_B600_F1000_20261024",
+         cutoff.rule="acceptability >= (1-level)-1e-12",cutoff.tolerance=1e-12,
          optim.boundary.rescue=optim.boundary.rescue,
          boundary.rescue.version="rd_bc_stable_boundary_v1",
          score.tol=score.tol,root.tol=root.tol,constraint.tol=constraint.tol,

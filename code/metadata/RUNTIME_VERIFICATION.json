@@ -1,0 +1,38 @@
+[
+  {
+    "scale": "RR",
+    "analysis": "none_MAIC",
+    "files": 113,
+    "all_match": true
+  },
+  {
+    "scale": "RR",
+    "analysis": "score_unit",
+    "files": 113,
+    "all_match": true
+  },
+  {
+    "scale": "RR",
+    "analysis": "score_MAIC",
+    "files": 113,
+    "all_match": true
+  },
+  {
+    "scale": "RD",
+    "analysis": "none_MAIC",
+    "files": 147,
+    "all_match": true
+  },
+  {
+    "scale": "RD",
+    "analysis": "score_unit",
+    "files": 147,
+    "all_match": true
+  },
+  {
+    "scale": "RD",
+    "analysis": "score_MAIC",
+    "files": 147,
+    "all_match": true
+  }
+]

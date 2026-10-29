@@ -1,6 +1,0 @@
-Source: /scratch/yanjin41/MAIC_ess_em_v2_MC1000_20261015/common_diffuse_low_weight_em_est_none_fit_maic_n200_ess015_full_20261015_171845_1891066/combined_results.csv
-Source MD5: f22d6a065cf0f116a16b7d56a04134ff
-Input: current repaired combined_results.csv; no RDS/model/CI calculation was run.
-Scale: log(RR). BC intervals retain the original ci_type=Exact label.
-Original plotting definitions/style and exclusions (brmad, LP-BFC, RLP-BFC) retained.
-Coverage conditions on valid returned intervals; return fractions are included in metrics.csv.

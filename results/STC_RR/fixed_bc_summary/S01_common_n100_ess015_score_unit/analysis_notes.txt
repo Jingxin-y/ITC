@@ -1,0 +1,4 @@
+Saved STC postprocessing; existing score_unit fits were reused.
+Uncertainty scope: fixed_bc_summary
+Wald intervals only; no bootstrap inversion was rerun.
+Coverage is conditional on returned valid intervals; see return-rate columns.

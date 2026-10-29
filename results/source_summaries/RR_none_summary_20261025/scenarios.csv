@@ -1,0 +1,9 @@
+"scenario_id","event","n","ess_ratio"
+1,"common",100,0.15
+2,"common",100,0.5
+3,"common",500,0.15
+4,"common",500,0.5
+5,"rare",100,0.15
+6,"rare",100,0.5
+7,"rare",500,0.15
+8,"rare",500,0.5

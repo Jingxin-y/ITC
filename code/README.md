@@ -1,41 +1,38 @@
-# RR / RD code corresponding to result_v2
+# 当前 Nibi 结果对应代码
 
-当前绘图结果见 [../results](../results)。本目录仅保存源码、配置和代码说明。
+RR 的 113 个运行文件、RD 的 147 个运行文件，均与六个当前 CSV 导出包的 `RUNTIME_FILES.csv` 中 SHA256 完全一致。
+STC 的两个程序 MD5 与保存的运行配置一致。证据见 [metadata/RUNTIME_VERIFICATION.json](metadata/RUNTIME_VERIFICATION.json) 和 [metadata/SOURCE_FILES.csv](metadata/SOURCE_FILES.csv)。
 
-本目录保存可共享的 RR、RD 完整源码，对应 `anchored_v1/result_cluster/result_v2` 的模型与算法。
-整理日期：2026-10-22。历史结果、旧图、旧快照及补算归档未包含在内。
+| 功能 | RR | RD |
+|---|---|---|
+| 估计流程 | [cluster_all_methods.R](RR/code/estimation/cluster_all_methods.R) → [anchored_comparison.R](RR/code/estimation/anchored_comparison.R) | [rd_cluster.R](RD/code/RD/estimation/rd_cluster.R) → [rd_comparison.R](RD/code/RD/estimation/rd_comparison.R) |
+| BC 区间核心 | [CI_marginal_target.R](RR/code/estimation/helpers/CI_marginal_target.R) | [CI_marginal_rd_target.R](RD/code/RD/estimation/CI_marginal_rd_target.R) |
+| Coverage 汇总 | [plot_metrics()](plotting/RR/plot_cluster_results.R) | [rdplot_metrics()](plotting/RD/plot_rd_cluster_results.R) |
 
-| 目录 | 内容 |
-|---|---|
-| [RR/code](RR/code) | 完整 RR v2 生成、估计、CI、模拟和汇总代码 |
-| [RD/code](RD/code) | 完整 RD 代码及所需共享依赖 |
-| [CI_methods](CI_methods/README_zh.md) | 单列非 Wald 区间：RR BC、RD BC、RD MN-ESS；含函数索引和源码审阅副本 |
-| [plotting](plotting/README_zh.txt) | 绘图源码、单情景 CSV 与批量绘图入口 |
-| [config](config/SCENARIOS.csv) | RR、RD 各 288 个情景的参数，不含结果 |
-| [metadata](metadata) | 源码来源、版本与验证范围 |
+- RD 的 MN-ESS： [rd_methods.R](RD/code/RD/estimation/rd_methods.R)。
+- 非 Wald CI 的独立审阅入口：[CI_methods](CI_methods/README_zh.md)。
+- STC 运行入口：[run_stc_reuse.R](STC_RR/run_stc_reuse.R)，核心实现：[stc_reuse.R](STC_RR/stc_reuse.R)。
+- 统一重绘入口：[plot_nibi_results.R](plotting/plot_nibi_results.R)。
+- [config/SCENARIOS.csv](config/SCENARIOS.csv)：当前 48 个 RR/RD 分析情景。
+- [cluster](cluster)：完整、保持原字节的 full24 和 none_MAIC 运行包；各包含自身代码、配置、运行入口与原 SHA256SUMS。运行前阅读包内 README；不会在本地自动提交任何作业。
 
-详细说明见 [README_zh.txt](README_zh.txt)。RR 是 v2 DGM 加此前已发布 BC/FC 修复的整理副本；RD 保留 128 个冻结源码文件。
-Wald 实现在完整主程序中，独立 CI 清单只列非 Wald 方法。RR 与 RD 的 BC 均采用参数 bootstrap 与 Blaker 型反演；RD 的额外文件还包括 MN-ESS 及模型/求解器适配代码。
+当前 BC 默认参数为 coarse / confirm / refine / p-value = 600 / 1000 / 1000 / 500，置信水平 .95，二分阈值 .001，二分上限 15。
+完整 full24 原包包含 `none`（单位拟合权重）；当前主结果采用单独的 `none_MAIC` 导出，两者不得混用。
 
-## Quick checks
-
-Run inside this directory:
+源码检查（在本目录运行）：
 
 ```sh
 python verify_checksums.py
 Rscript --vanilla verify_runtime.R RR
 Rscript --vanilla verify_runtime.R RD
-Rscript --vanilla example_one_seed.R RR
-Rscript --vanilla example_one_seed.R RD
 ```
 
-The examples run point estimation for one seed with BC disabled. R and MASS are required; the RR FC rescue path also needs nleqslv. Full simulation and bootstrap CI runs were not repeated when preparing this bundle.
+从仓库根目录重绘：
 
 ```sh
-Rscript --vanilla plotting/plot_one_csv.R RR /path/to/combined_results.csv /path/to/new_RR_plots 1000
-Rscript --vanilla plotting/plot_one_csv.R RD /path/to/anchored_rd_estimates.csv /path/to/new_RD_plots 1000
+Rscript --vanilla code/plotting/plot_nibi_results.R .
 ```
 
-Plotting requires saved per-replicate CSV/RDS inputs, which are not included. Checksum verification covers the source sharing bundle; this GitHub README and the local `.gitattributes` are additional navigation/transport files.
-
-Existing upstream license notices are preserved. They do not assign one new open-source license to all project code.
+运行检查只解析和加载源码、核对 DGM 与区间默认参数，不运行 MC1000 或 bootstrap。
+`RR/code`、`RD/code` 与 cluster 包内的数值源码保持运行快照原字节；整理说明、校验脚本和绘图驱动为新增共享入口。
+原有 BRMPLUS 等许可声明均保留。

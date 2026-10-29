@@ -1,0 +1,35 @@
+RR_v2_full24_MC1000_20261024 verification -- 2026-10-24
+
+PREPARED, NOT SUBMITTED. No bootstrap coverage pilot or full production run.
+
+Confirmed:
+- All scientific R sources are byte-identical to the current RR_effect_v2_20261015.
+- The final CI helper exactly matches RR_final_B600_F1000_20261024.
+- Current v2 DGM, risk targets and full CI controls are checked before submission.
+- Existing generator checks pass: 60 designs, independent 64-cell probability
+  integration, fixed BC means, ESS decomposition, reproducibility and balanced arms.
+- Eight requested scenarios and 24 analysis cells have the exact requested order.
+- Per-trial n=100/500 denotes a total of 100/500 observations, split 1:1.
+- Formal all-method wiring was checked using a CI spy (no bootstrap draws):
+  none uses unit fitting weights, score_unit uses unit fitting weights,
+  score_MAIC uses MAIC fitting weights; all standardize with MAIC weights.
+- Three analysis settings produced identical outcomes, treatment and raw covariates
+  for the same data seed; completed records were reused without changing bytes.
+- The wiring example calls three Exact branches for none, and two for each score
+  setting. Therefore formal all-method work is not equivalent to the old one-FC
+  bootstrap-only rerun. Every call receives 600/1000/1000 and p-value B=500.
+- The resource defaults incorporate the user's revised request:
+  none: 16 CPUs, 4G, 4h; scores n100: 96 CPUs, 20G, 18h;
+  scores n500: 96 CPUs, 20G, 19h. MAIC has no direct timing evidence yet.
+- Preflight creates configurations only and groups tasks into three arrays with
+  8 elements each; a task is a full 1000-seed cell, without chunking or throttle.
+- Bash syntax, mocked sbatch dispatch, duplicate-submit guard, incomplete-result
+  collection and archive checks are recorded under audit/ and validation/ locally.
+- Per-file SHA256 plus archive SHA256 are included. Test folders are excluded.
+
+Resource estimates are planning approximations based only on the user's RR
+accounting and preferences, not measured full-1000 runtimes or memory minima.
+Saved complete records may contain numerical method/interval failures; these are
+reported rather than redrawn. Boundary truncation is a valid method outcome.
+The simulation may need a manual resume after a walltime limit. No job was
+uploaded, started or cancelled on Nibi by this local preparation.

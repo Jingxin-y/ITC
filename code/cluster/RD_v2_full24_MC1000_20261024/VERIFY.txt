@@ -1,0 +1,41 @@
+RD_v2_full24_MC1000_20261024 — local verification, 2026-10-24
+Resource revision 2026-10-25: none changed from 16 CPUs / 4G / 4h to 32 CPUs / 4G / 8h.
+Submission mocks and archive checks were repeated for this resource-only revision.
+Status: package prepared; no upload, real sbatch submission, bootstrap pilot or formal Monte Carlo run.
+
+Verified:
+1. All 147 runtime files match RD_final_B600_F1000_20261024/code byte for byte.
+   No scientific source edited. Final RD helper keeps the four corrected floating-point cutoffs,
+   B=600/1000/1000, multistart/nlminb and stable boundary recovery.
+2. All shipped R sources parse; all four top-level shell scripts pass bash -n.
+3. Configuration preparation verifies all 24 cells, current RD v2, diffuse/high/all and nominal
+   Full ESS=.15/.50. Eight cases follow the user's requested order.
+4. The real data-generation and fitting pipeline was checked once for each analysis setting
+   using common/n100/ESS=.50/seed17. CI inversion was replaced with a spy to avoid bootstrap.
+   All nine original methods were retained. Both exact branches received B controls,
+   independent P-value budget=500, CI seed=1000017 and all recovery options.
+   Fitting weights were ones or MAIC as requested; standardization weights were MAIC.
+   Generated outcomes/raw covariates matched across analyses. AC arms were 50/50;
+   BC total was 100. Completed checkpoints were reused without a byte change.
+5. The actual run.R entry processed 1000 MOCK records through the canonical output schema.
+   This is a software fixture, not a statistical simulation experiment.
+   Partial checkpoint history preserved bytes, complete seeds were reused, incompatible
+   settings were rejected and processed cells were skipped by prepare.R.
+6. The report kept a method failure, distinguished 999 valid intervals from the denominator
+   of 1000 planned seeds and retained BC_boundary_truncated as a valid interval.
+   Partial overall runs produced complete missing-seed counts and nonzero report status.
+7. Local Slurm mocks captured 3 arrays covering exactly task IDs 1..24 without a % limit:
+   none: 8 tasks / 32 CPUs / 4G / 08:00:00 (resource revision 2026-10-25);
+   score n100: 8 tasks / 96 CPUs / 20G / 18:00:00;
+   score n500: 8 tasks / 96 CPUs / 20G / 19:00:00.
+   One afterany report was attached to all three arrays, with 1 CPU / 8G / 01:00:00.
+   The duplicate submission guard blocked an active-job fixture. No real scheduler contacted.
+8. Package SHA256SUMS, runtime manifest, archive members and external archive SHA256 were
+   checked; local audit/validation fixtures are excluded from the portable archive.
+
+Limitations:
+Resource times are chosen from the existing RR records and the user's requested none defaults.
+They are not RD full-pipeline or score_MAIC benchmarks and do not guarantee completion.
+No new coverage/stability claim follows from these software checks.
+Each exact CI call retains its existing 10800-second internal limit independently of Slurm time.
+Detailed local evidence is kept in audit/ and validation/, outside the portable archive.
