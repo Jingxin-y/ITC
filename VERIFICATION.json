@@ -1,7 +1,7 @@
 {
-  "date": "2026-10-28",
+  "date": "2026-10-29",
   "source_directory": "D:/codexresults/ITC/Nibi",
-  "source_archives": 12,
+  "source_archives": 13,
   "all_source_archive_SHA256": "PASS",
   "internal_package_SHA256_and_export_MD5": "PASS",
   "RR_RD_analysis_cells": {
@@ -55,7 +55,8 @@
       "scale": "RD",
       "analysis": "score_unit",
       "files": 147,
-      "all_match": true
+      "all_match": true,
+      "scope_note": "Base runtime; S06 seed9 brm-FC-BC uses independently verified 147-file repair snapshot."
     },
     {
       "scale": "RD",
@@ -82,14 +83,43 @@
   "numerical_metric_checks": [
     "PASS: all 48 RR/RD cell metrics matched the independent 2026-10-26 CSV audit.",
     "PASS: all 16 STC scope/cell metrics matched the source method_summary.csv STC rows.",
-    "No model fitting, simulation or interval inversion was performed."
+    "No model fitting, simulation or interval inversion was performed.",
+    "2026-10-29: RD score_unit 72 groups independently recomputed; single repaired BC record checked against original and updated source packages."
   ],
   "numerical_accuracy_checks": [
     "PASS: RR/RD SE-subset counts, SD and Accuracy matched 648 independent reference rows; STC SE/SD/Accuracy independently recomputed for 192 groups."
   ],
-  "verified_navigation_links": 53,
+  "verified_navigation_links": 61,
   "large_CSVs_losslessly_gzip_compressed": 2,
   "source_archives_modified": false,
-  "simulations_or_fitting_or_intervals_rerun": false,
-  "supplemental_none_unit_summaries_separated": true
+  "obsolete_none_unit_supplemental_summaries_removed": true,
+  "simulations_or_fitting_or_intervals_rerun_during_sync": false,
+  "incoming_repair_includes_full_BC_recalculation": true,
+  "latest_repair": {
+    "version": "RD_stationary_restart_S06_seed9_20261029",
+    "scope": "RD / score_unit / S06 / seed 9 / brm-FC-BC",
+    "changed_records": 1,
+    "changed_fields": [
+      "lower",
+      "upper",
+      "p.value",
+      "interval_status"
+    ],
+    "other_8999_records_identical": true,
+    "other_7_cells_byte_identical": true,
+    "all_72000_point_estimates_identical": true,
+    "repaired_runtime_files": 147,
+    "repaired_runtime_all_match": true,
+    "independent_method_summary_groups": 72,
+    "valid_intervals": 1000,
+    "covered": 950,
+    "coverage": 0.95,
+    "mean_width": 0.27668971335046944,
+    "R_source_parse_and_load": {
+      "files": 121,
+      "status": "PASS",
+      "fitting_or_interval_inversion": false
+    },
+    "selected_plot_and_aggregate_checks": "PASS; nine affected metric rows, all remaining metric rows unchanged"
+  }
 }

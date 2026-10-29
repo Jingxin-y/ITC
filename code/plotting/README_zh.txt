@@ -17,3 +17,7 @@ RR Bias/SE显示范围默认5/4，RD默认1/1；图面裁剪不改变计算结�
 
 每次绘图会将RR/RD核心指标与独立CSV核对表比较，STC与其源method_summary.csv比较。
 validation目录中的独立参考表与当前输入包SHA一致；不重新运行模型验证。
+
+单独更新一个参数组合及其合并指标（不重绘其他图）：
+Rscript --vanilla code/plotting/plot_nibi_results.R . RD/score_unit/S06_rare_n100_ess050_score_unit
+核对依据为 results/validation/independent_RR_RD_metrics.csv 的当前版本。

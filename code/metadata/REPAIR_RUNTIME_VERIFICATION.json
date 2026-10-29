@@ -1,0 +1,11 @@
+{
+  "version": "RD_stationary_restart_S06_seed9_20261029",
+  "scope": "RD / score_unit / S06 / seed 9 / brm-FC-BC",
+  "files": 147,
+  "all_match": true,
+  "changed_files": [
+    "RD/estimation/CI_marginal_rd_target.R"
+  ],
+  "base_runtime": "RD/code",
+  "repair_runtime": "repairs/RD_stationary_restart_S06_seed9_20261029/code"
+}

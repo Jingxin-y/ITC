@@ -1,0 +1,84 @@
+List of 5
+ $ settings:List of 35
+  ..$ optim.maxit                    : int 200
+  ..$ optim.reltol                   : num 1e-10
+  ..$ optim.retries                  : int 2
+  ..$ optim.retry.maxit              : int 1000
+  ..$ optim.multistart               : logi TRUE
+  ..$ optim.multistart.max           : int 3
+  ..$ optim.fallback                 : logi TRUE
+  ..$ optimizer.version              : chr "rd_bc_multistart_nlminb_v1"
+  ..$ final.version                  : chr "RD_final_B600_F1000_20261024"
+  ..$ cutoff.rule                    : chr "acceptability >= (1-level)-1e-12"
+  ..$ cutoff.tolerance               : num 1e-12
+  ..$ optim.boundary.rescue          : logi TRUE
+  ..$ boundary.rescue.version        : chr "rd_bc_stable_boundary_v1"
+  ..$ score.tol                      : num 1e-04
+  ..$ root.tol                       : num 1e-10
+  ..$ constraint.tol                 : num 1e-07
+  ..$ alpha.bound                    : num 15
+  ..$ beta.bound                     : num 15
+  ..$ intercept                      : int 1
+  ..$ psi.range                      : num [1:2] -0.549 0.66
+  ..$ psi.se                         : num 0.0756
+  ..$ psi.se.source                  : chr "user supplied, search range only"
+  ..$ level                          : num 0.95
+  ..$ psi.null                       : num 0
+  ..$ thres.dicho                    : num 0.001
+  ..$ bisection.max.step             : int 15
+  ..$ nsim                           : Named int [1:4] 600 1000 1000 500
+  .. ..- attr(*, "names")= chr [1:4] "coarse" "confirm" "refine" "p.value"
+  ..$ observed.anchor                : chr "fixed observed marginal estimate, including an FC input estimate"
+  ..$ nuisance.fit                   : chr "ordinary weighted likelihood; not a penalized FC likelihood"
+  ..$ weight.uncertainty             : logi FALSE
+  ..$ target.distribution.uncertainty: logi FALSE
+  ..$ search                         : chr "outward grid and local inversion around anchor; disconnected sets not exhaustively searched"
+  ..$ repair.version                 : chr "RD_stationary_restart_S06_seed9_20261029"
+  ..$ execution                      : chr "8-worker ordered exact profile pairs; validated against serial"
+  ..$ input.reconstruction           : chr "Original saved FC coefficients, point, search SE and range; seed-9 reconstructed designs and weights verified a"| __truncated__
+ $ lower   :List of 8
+  ..$ value             : num -0.116
+  ..$ last.accepted     : num -0.116
+  ..$ status            : chr "available"
+  ..$ available         : logi TRUE
+  ..$ boundary.truncated: logi FALSE
+  ..$ converged         : logi TRUE
+  ..$ bracket           : Named num [1:2] -0.116 -0.117
+  .. ..- attr(*, "names")= chr [1:2] "inner" "outer"
+  ..$ steps             : int 7
+ $ upper   :List of 8
+  ..$ value             : num 0.236
+  ..$ last.accepted     : num 0.236
+  ..$ status            : chr "available"
+  ..$ available         : logi TRUE
+  ..$ boundary.truncated: logi FALSE
+  ..$ converged         : logi TRUE
+  ..$ bracket           : Named num [1:2] 0.236 0.236
+  .. ..- attr(*, "names")= chr [1:2] "inner" "outer"
+  ..$ steps             : int 7
+ $ p.value :List of 7
+  ..$ psi          : num 0
+  ..$ acceptability: num 0.6
+  ..$ status       : chr "available"
+  ..$ B            : int 500
+  ..$ failed.draws : int 0
+  ..$ statistic    : num 0.446
+  ..$ phase        : chr "p value"
+ $ counts  :List of 17
+  ..$ profile.fits                : int 46626
+  ..$ failed.profile.fits         : int 0
+  ..$ bootstrap.draws             : int 23300
+  ..$ failed.bootstrap.draws      : int 0
+  ..$ candidate.cache.hits        : int 2
+  ..$ nuisance.boundary.fits      : int 30883
+  ..$ optimizer.attempts          : int 51067
+  ..$ retried.profile.fits        : int 4178
+  ..$ recovered.profile.fits      : int 4178
+  ..$ multistart.profile.fits     : int 1
+  ..$ fallback.profile.fits       : int 0
+  ..$ multistart.attempts         : int 3
+  ..$ fallback.attempts           : int 0
+  ..$ recovered.by.multistart     : int 1
+  ..$ recovered.by.fallback       : int 0
+  ..$ boundary.rescue.attempts    : int 0
+  ..$ recovered.by.boundary.rescue: int 0

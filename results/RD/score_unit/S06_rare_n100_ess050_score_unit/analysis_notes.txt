@@ -1,5 +1,5 @@
 Input: saved per-replicate CSV; all 1000 seeds and failed rows retained.
-Input MD5: c545071c93527d0c29a8c58a7c558a37
+Input MD5: 2f973a920747456ed4e10c740dc1476f
 Coverage = covered / valid intervals with truth.
 Interval return rate and returned-and-covered fraction use planned MC1000.
 Accuracy uses mean valid model SE / empirical SD on the same valid-SE subset.

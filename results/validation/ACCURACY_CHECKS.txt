@@ -1,1 +1,2 @@
 PASS: RR/RD SE-subset counts, SD and Accuracy matched 648 independent reference rows; STC SE/SD/Accuracy independently recomputed for 192 groups.
+2026-10-29: all 72000 RD score_unit point estimates and SE values are unchanged; original Accuracy checks remain applicable.

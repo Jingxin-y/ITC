@@ -1,7 +1,0 @@
-analysis,n,cpus,memory,walltime
-none,100,16,4G,04:00:00
-none,500,16,4G,04:00:00
-score_unit,100,96,20G,18:00:00
-score_unit,500,96,20G,19:00:00
-score_MAIC,100,96,20G,18:00:00
-score_MAIC,500,96,20G,19:00:00

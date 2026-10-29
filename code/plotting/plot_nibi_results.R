@@ -1,6 +1,6 @@
 # Recompute displayed metrics from the saved Nibi CSVs; no models or CI inversion are run.
 args <- commandArgs(TRUE)
-if(length(args)!=1L) stop('Usage: Rscript code/plotting/plot_nibi_results.R REPOSITORY_ROOT')
+if(!length(args)%in%c(1L,2L)) stop('Usage: Rscript code/plotting/plot_nibi_results.R REPOSITORY_ROOT [SCALE/ANALYSIS/CELL]')
 root <- normalizePath(args[1],winslash='/',mustWork=TRUE)
 if(.Platform$OS.type=='windows') Sys.setlocale('LC_CTYPE','English_United States.utf8')
 rr <- new.env(parent=globalenv()); rd <- new.env(parent=globalenv())
@@ -8,6 +8,10 @@ sys.source(file.path(root,'code/plotting/RR/plot_cluster_results.R'),rr)
 sys.source(file.path(root,'code/plotting/RD/plot_rd_cluster_results.R'),rd)
 raw <- file.path(root,'original result'); out <- file.path(root,'results')
 config <- read.csv(file.path(raw,'config/SCENARIOS.csv'),stringsAsFactors=FALSE)
+selection <- if(length(args)==2L) args[2] else NULL
+selected <- if(is.null(selection)) rep(TRUE,nrow(config)) else
+ paste(config$scale,config$analysis,config$cell,sep='/')==selection
+if(!is.null(selection)) stopifnot(sum(selected)==1L)
 full <- list(); index <- list(); checks <- list()
 close_number <- function(x,y,tol=1e-8) {
  if(is.na(x)&&is.na(y)) return(TRUE)
@@ -16,7 +20,7 @@ close_number <- function(x,y,tol=1e-8) {
 audit <- read.csv(file.path(out,'validation/independent_RR_RD_metrics.csv'),stringsAsFactors=FALSE)
 audit_key <- with(audit,paste(scale,analysis,scenario_id,method,ci_type,sep='|'))
 stopifnot(!anyDuplicated(audit_key))
-for(i in seq_len(nrow(config))) {
+for(i in which(selected)) {
  cfg <- config[i,]; d <- read.csv(file.path(raw,cfg$csv_path),stringsAsFactors=FALSE,check.names=FALSE)
  stopifnot(length(unique(d$seed))==1000L,nrow(d)==if(cfg$scale=='RR')18000L else 9000L)
  if(cfg$scale=='RR') {
@@ -71,6 +75,32 @@ for(i in seq_len(nrow(config))) {
   results_path=paste(cfg$scale,cfg$analysis,cfg$cell,sep='/'),nsim=1000,input_md5=cfg$md5)
  cat('Plotted',i,'/48:',cfg$scale,cfg$analysis,cfg$cell,'\n');flush.console()
 }
+if(!is.null(selection)) {
+ replacement <- do.call(rbind,full)
+ all <- read.csv(file.path(out,'metrics_all.csv'),stringsAsFactors=FALSE,check.names=FALSE)
+ affected <- all$scale==replacement$scale[1] & all$analysis==replacement$analysis[1] &
+  all$cell==replacement$cell[1]
+ metric_key <- function(d) paste(d$method,d$ci_type,d$component,sep='|')
+ stopifnot(sum(affected)==nrow(replacement),setequal(names(all),names(replacement)))
+ position <- match(metric_key(all[affected,,drop=FALSE]),metric_key(replacement))
+ stopifnot(!anyNA(position),!anyDuplicated(position))
+ all[affected,] <- replacement[position,names(all),drop=FALSE]
+ write.csv(all,file.path(out,'metrics_all.csv'),row.names=FALSE,na='')
+ scale <- replacement$scale[1]
+ write.csv(all[all$scale==scale,,drop=FALSE],file.path(out,scale,'metrics_all_runs.csv'),row.names=FALSE,na='')
+ existing <- read.csv(file.path(out,'SCENARIOS.csv'),stringsAsFactors=FALSE,check.names=FALSE)
+ updated <- do.call(rbind,index)
+ affected <- existing$scale==updated$scale & existing$analysis==updated$analysis & existing$cell==updated$cell
+ stopifnot(sum(affected)==1L,setequal(names(existing),names(updated)))
+ existing[affected,] <- updated[,names(existing),drop=FALSE]
+ write.csv(existing,file.path(out,'SCENARIOS.csv'),row.names=FALSE)
+ writeLines(c(paste('PASS: regenerated and independently checked',selection),
+  'All metric rows matched the current versioned independent_RR_RD_metrics.csv.',
+  'Only the selected cell plots, aggregate metric rows and input-MD5 index were updated.',
+  'No fitting, simulation or interval inversion was performed.'),
+  file.path(out,'validation/RD_S06_seed9_20261029_PLOT_CHECKS.txt'))
+ quit(save='no',status=0L)
+}
 all <- do.call(rbind,full);stopifnot(nrow(all)==648L)
 write.csv(all,file.path(out,'metrics_all.csv'),row.names=FALSE,na='')
 for(scale in c('RR','RD'))write.csv(all[all$scale==scale,,drop=FALSE],
@@ -115,7 +145,7 @@ for(scope in sort(unique(stc$uncertainty))) for(s in sort(unique(stc$scenario_id
 }
 write.csv(do.call(rbind,stc_all),file.path(out,'STC_RR/metrics_all_runs.csv'),row.names=FALSE,na='')
 write.csv(do.call(rbind,stc_index),file.path(out,'STC_RR/SCENARIOS.csv'),row.names=FALSE)
-writeLines(c('PASS: all 48 RR/RD cell metrics matched the independent 2026-10-26 CSV audit.',
+writeLines(c('PASS: all 48 RR/RD cell metrics matched the current versioned independent_RR_RD_metrics.csv.',
  'PASS: all 16 STC scope/cell metrics matched the source method_summary.csv STC rows.',
  'No model fitting, simulation or interval inversion was performed.'),file.path(out,'validation/METRIC_CHECKS.txt'))
 cat('PASS: 48 RR/RD cells and 16 STC scope/cells plotted and numerically checked.\n')

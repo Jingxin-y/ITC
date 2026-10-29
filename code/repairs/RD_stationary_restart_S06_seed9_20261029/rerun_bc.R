@@ -1,0 +1,8 @@
+Sys.setlocale('LC_ALL','English_United States.utf8')
+a<-commandArgs(FALSE);self<-sub('^--file=','',a[grepl('^--file=',a)])
+home<-dirname(normalizePath(self,winslash='/',mustWork=TRUE));code<-file.path(home,'code')
+source(file.path(code,'RD/load_anchored_rd.R'),encoding='UTF-8');source_anchored_rd(code,file.path(code,'RD'))
+args<-readRDS(file.path(home,'exact_recompute_arguments.rds'))
+result<-do.call(exact_marginal_rd_target,args)
+saveRDS(result,file.path(home,'independent_recomputed_bc.rds'))
+print(result[c('estimate','low','up','p','status')])

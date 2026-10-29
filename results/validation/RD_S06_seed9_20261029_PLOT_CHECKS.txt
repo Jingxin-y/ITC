@@ -1,0 +1,4 @@
+PASS: regenerated and independently checked RD/score_unit/S06_rare_n100_ess050_score_unit
+All metric rows matched the current versioned independent_RR_RD_metrics.csv.
+Only the selected cell plots, aggregate metric rows and input-MD5 index were updated.
+No fitting, simulation or interval inversion was performed.

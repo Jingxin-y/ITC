@@ -24,6 +24,5 @@ Coverage以有效返回且有对应真值的区间为分母；返回率和占计
 
 ## 源汇总包
 
-[source_summaries](source_summaries) 保留 Nibi 提供的汇总导出及原校验文件。
-其中 RR_none_summary 和 RD_none_summary 来自 full24 的 `none`（单位拟合权重），与当前主结果的 `none_MAIC` 不是同一设置；它们只作补充来源，不能替代none_MAIC。
-统一指标和图表以当前48份逐次CSV为准；RD none_MAIC已直接从其最新逐次CSV汇总。
+[source_summaries](source_summaries) 保留当前三种设置的来源汇总。RD score_unit 已加入 2026-10-29 的修复汇总；旧 none/单位拟合权重的两份补充汇总已移出当前目录。
+统一指标和图表以当前 48 份逐次 CSV 为准。S06 brm-FC-BC 的有效区间为 1000/1000、覆盖区间为 950/1000；核对见 [修复检查](validation/RD_score_unit_S06_seed9_20261029.json)。

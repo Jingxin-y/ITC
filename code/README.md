@@ -1,6 +1,6 @@
 # 当前 Nibi 结果对应代码
 
-RR 的 113 个运行文件、RD 的 147 个运行文件，均与六个当前 CSV 导出包的 `RUNTIME_FILES.csv` 中 SHA256 完全一致。
+RR 的 113 个运行文件、RD 的 147 个运行文件，均与六个当前 CSV 导出包的基础 `RUNTIME_FILES.csv` 中 SHA256 完全一致；下述 10 月 29 日修复记录另使用对应修复快照。
 STC 的两个程序 MD5 与保存的运行配置一致。证据见 [metadata/RUNTIME_VERIFICATION.json](metadata/RUNTIME_VERIFICATION.json) 和 [metadata/SOURCE_FILES.csv](metadata/SOURCE_FILES.csv)。
 
 | 功能 | RR | RD |
@@ -36,3 +36,5 @@ Rscript --vanilla code/plotting/plot_nibi_results.R .
 运行检查只解析和加载源码、核对 DGM 与区间默认参数，不运行 MC1000 或 bootstrap。
 `RR/code`、`RD/code` 与 cluster 包内的数值源码保持运行快照原字节；整理说明、校验脚本和绘图驱动为新增共享入口。
 原有 BRMPLUS 等许可声明均保留。
+
+2026-10-29 的单条记录例外：RD `score_unit / S06 / seed 9 / brm-FC-BC` 使用 [修复运行快照](repairs/RD_stationary_restart_S06_seed9_20261029/README_zh.md)，147 文件均与修复清单一致；其余记录仍对应基础快照。修复源程序、差异补丁与参数输入均保留，核对见 [REPAIR_RUNTIME_VERIFICATION.json](metadata/REPAIR_RUNTIME_VERIFICATION.json)。

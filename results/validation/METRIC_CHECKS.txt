@@ -1,3 +1,5 @@
-PASS: all 48 RR/RD cell metrics matched the independent 2026-10-26 CSV audit.
-PASS: all 16 STC scope/cell metrics matched the source method_summary.csv STC rows.
-No model fitting, simulation or interval inversion was performed.
+PASS: baseline RR/RD and STC metric checks from 2026-10-28 remain valid for unchanged data.
+PASS: on 2026-10-29 all 72 RD score_unit groups independently recomputed and matched the updated source summary.
+PASS: only one BC record has changed; points and SE values are unchanged.
+See RD_S06_seed9_20261029_PLOT_CHECKS.txt for current selected-cell R plotting checks.
+No fitting, simulation or interval inversion was performed during synchronization.

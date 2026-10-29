@@ -1,0 +1,9 @@
+task_id,scenario_id,event,n,ess_ratio,analysis,estimation_mode,model_weighting,ess_source,em_level,weight_mode,nsim,first_seed,cell
+2,1,common,100,0.15,score_unit,scores,unit,diffuse,high,all,1000,1,S01_common_n100_ess015_score_unit
+5,2,common,100,0.5,score_unit,scores,unit,diffuse,high,all,1000,1,S02_common_n100_ess050_score_unit
+8,3,common,500,0.15,score_unit,scores,unit,diffuse,high,all,1000,1,S03_common_n500_ess015_score_unit
+11,4,common,500,0.5,score_unit,scores,unit,diffuse,high,all,1000,1,S04_common_n500_ess050_score_unit
+14,5,rare,100,0.15,score_unit,scores,unit,diffuse,high,all,1000,1,S05_rare_n100_ess015_score_unit
+17,6,rare,100,0.5,score_unit,scores,unit,diffuse,high,all,1000,1,S06_rare_n100_ess050_score_unit
+20,7,rare,500,0.15,score_unit,scores,unit,diffuse,high,all,1000,1,S07_rare_n500_ess015_score_unit
+23,8,rare,500,0.5,score_unit,scores,unit,diffuse,high,all,1000,1,S08_rare_n500_ess050_score_unit

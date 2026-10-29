@@ -19,3 +19,5 @@ STC的两个小RDS仅保存配置/运行元信息，不包含逐seed模型对象
 provenance 中的 exported_file 字段沿用原压缩包内路径。当前仓库导航使用 config/SCENARIOS.csv 的 csv_path。
 provenance 内原 MANIFEST.sha256 用于核对原导出包；当前目录请使用本目录 SHA256SUMS 和 checksums/FILES.csv。
 完整性核对见根目录 [VERIFICATION.json](../VERIFICATION.json)。
+
+2026-10-29：RD score_unit 的 S06 CSV 已按最新修复包原字节替换，仅 seed 9 的 brm-FC-BC 一行有 4 个字段变化。该条使用修复运行快照，其余条目仍用基础运行快照；[修复来源与前后变化](repairs/RD_score_unit_S06_seed9_20261029)。该来源包包含的逐 seed RDS 不在本仓库发布，保留在 Nibi 原压缩包。

@@ -1,0 +1,12 @@
+"method","status","n"
+"brm","available",1000
+"brm-BC","available",1000
+"brm-FC","available",1000
+"brm-FC-BC","available",1000
+"IB","available",111
+"MN_eff","available",1000
+"RD_MAIC_sandwich","available",1000
+"RIB","available",111
+"RLPM","available",1000
+"IB","fit_failed",889
+"RIB","fit_failed",889

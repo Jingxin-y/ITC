@@ -1,0 +1,20 @@
+--- a/RD/estimation/CI_marginal_rd_target.R
++++ b/RD/estimation/CI_marginal_rd_target.R
+@@ -334,6 +334,17 @@
+         if (isTRUE(z$converged)) break
+       }
+     }
++    ## Retry the same stationary candidate with the initial optimizer controls.
++    ## Keep the original acceptance tests, likelihood and parameter bounds.
++    if (!isTRUE(best$converged) &&
++        all(is.finite(c(best$par, best$value, best$max.projected.score, best$constraint.error))) &&
++        length(best$par) == pa + pb &&
++        length(best$max.projected.score) == 1L && length(best$constraint.error) == 1L &&
++        best$max.projected.score <= score.tol && abs(best$constraint.error) <= constraint.tol) {
++      run.optimizer(best$par[c(rest, pa + seq_len(pb))], "L-BFGS-B",
++                    "stationary_solution_restart", optim.retry.maxit,
++                    optim.reltol, score.tol/10)
++    }
+     if (!isTRUE(best$converged) && optim.boundary.rescue && abs(psi) >= .99) {
+       check.deadline("stable boundary rescue")
+       stable.boundary <<- TRUE
