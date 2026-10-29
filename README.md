@@ -20,6 +20,6 @@ RR 的逐次表共 432000 行，RD 共 216000 行。STC RR 单独保存 192000 �
 
 `score_unit` 为 score 结局模型使用单位拟合权重；`score_MAIC` 为 score 模型使用 MAIC 拟合权重；`none_MAIC` 不加入 score 并使用 MAIC 拟合权重。三者的目标标准化仍使用 MAIC 权重。
 点估计、区间、失败状态及真值均保留。Coverage 以有效返回且有对应真值的区间为分母，另报告区间返回率和占计划重复次数的覆盖比例。
-完整逐 seed RDS 仍在集群；本次只整理已有结果和重绘图表，未运行模拟、拟合或区间反演。
+基础逐 seed RDS 仍在集群；本次单条修复的 RDS 保留在 Nibi 原压缩包中，本次操作未同步回集群。此次 GitHub 更新只整理已保存结果和重绘图表，未运行模拟、拟合或区间反演。
 
 2026-10-29 更新：RD `score_unit / S06 / seed 9 / brm-FC-BC` 已采用补算成功的区间；[修复说明](code/repairs/RD_stationary_restart_S06_seed9_20261029/README_zh.md)。RR、RD 仍各为 **3 种设置，每种 8 个参数组合**。旧 none/单位拟合权重补充汇总已移出当前目录。
